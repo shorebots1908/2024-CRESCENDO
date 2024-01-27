@@ -4,9 +4,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -17,8 +14,9 @@ public class IntakeSubsystem extends SubsystemBase {
       private AnalogInput feedSensor;
 
       //CONSTANTS
-      private double intakeSpeed = 0;
-      private double intakeReverse = 0;
+      private double intakeSpeed = 0.3;
+      private double feedSpeed = 1;
+      //private double intakeReverse = 0;
       private int sensorThreshold = 500;
       private boolean intakeOn = false;
 
@@ -38,13 +36,21 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void noteIntake() {
         //TODO: set dependent on boolean evaluation of sensor value.
-        intakeSpeed = 0.7;
-        intakeReverse = 0;
-        intakeOn = true;
+        if (feedSensor.getValue() < sensorThreshold) {
+            m_intake1.set(intakeSpeed);
+        }
+        else {
+            m_intake1.stopMotor();
+        }
+    }
+
+    public void noteUntake(){
+        m_intake1.set(-intakeSpeed);
     }
 
     public void noteFeed() {
         //TODO: run inbtake to feed into shooter, ignoring sensor value.
+        m_intake1.set(feedSpeed);
     }
 
 }
