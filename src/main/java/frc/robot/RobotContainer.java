@@ -7,8 +7,8 @@
  * TODO: shooting controls; 
  * TODO: apriltags reading, better camera stuff
  * TODO: driving tuning
- * TODO: 2 camera pipelines, rings and apriltags tracking
- * TODO: implement modifyaxis function on controller inputs for drivng. 
+ * TODO: 2 camera pipelines, rings and apriltags tracking, camera for object detection + driver camera
+ * TODO: path planning and path resolution
  */
 
 package frc.robot;
