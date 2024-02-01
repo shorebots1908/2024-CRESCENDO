@@ -76,11 +76,12 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                modifyAxis(m_driverController.getLeftY()),
+                modifyAxis(m_driverController.getLeftX()),
+                modifyAxis(m_driverController.getRightX()),
                 true, true),
             m_robotDrive));
+            
   }
 
   /**
@@ -146,25 +147,16 @@ public class RobotContainer {
   }
 
   //functions to smooth controller input
-  private static double deadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      if (value > 0.0) {
-        return (value - deadband) / (1.0 - deadband);
-      } else {
-        return (value + deadband) / (1.0 - deadband);
-      }
-    } else {
-      return 0.0;
-    }
-  }
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.05);
-
+    value = -MathUtil.applyDeadband(value, OIConstants.kDriveDeadband);
+    
     // Square the axis, keep its sign.
     value = Math.copySign(value * value, value);
-
+    
     return value;
+
   }
+  
 }
