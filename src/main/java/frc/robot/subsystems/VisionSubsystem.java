@@ -46,7 +46,9 @@ public class VisionSubsystem extends SubsystemBase {
     PhotonCamera noteCamera = new PhotonCamera("Note Detection");
     Transform3d noteTransform = new Transform3d(new Translation3d(-0.4,0,0.15), new Rotation3d(0,0,0));
     
-    EstimatedRobotPose robotPose = new EstimatedRobotPose(null, 0, null, null);
+    Optional<EstimatedRobotPose> m_estimatedPose = null;
+    //EstimatedRobotPose robotPose = new EstimatedRobotPose(null, 0, null, null);
+    Pose2d odometryPose = null;
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, driverCamera, driverTransform );
@@ -55,20 +57,24 @@ public class VisionSubsystem extends SubsystemBase {
     
 
     public void periodic()
-    {
-
+    {   
+        m_estimatedPose = getEstimatedGlobalPose(odometryPose);
+        if(m_estimatedPose.isPresent()) {
+            m_DriveSubsystem.addVisionMeasurement(m_estimatedPose.get());
+        }
+        odometryPose = m_DriveSubsystem.getPose();
     }
 
 
 
     public VisionSubsystem(DriveSubsystem drive) {
         m_DriveSubsystem = drive;
+        odometryPose = m_DriveSubsystem.getPose();
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         poseEstimator.setReferencePose(prevEstimatedRobotPose);
         return poseEstimator.update();
-
     }
 
 
