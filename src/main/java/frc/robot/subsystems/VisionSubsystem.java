@@ -6,6 +6,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.apriltag.AprilTag;
@@ -49,7 +50,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, driverCamera, driverTransform );
+    PhotonTrackedTarget currentBestTarget = null;
+    PhotonTrackedTarget currentLockedTarget = null;
     
+
     public void periodic()
     {
 
@@ -59,7 +63,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem(DriveSubsystem drive) {
         m_DriveSubsystem = drive;
-        
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -68,7 +71,27 @@ public class VisionSubsystem extends SubsystemBase {
 
     }
 
+
+
     //need to be implemented
+    public boolean trackNote() {
+        /* this function should return a boolean based on whether the camera's latest results have a note target.
+         * place that note target in currentBestTarget
+        */
+    }
+
+    public boolean lockNote() {
+        /* this function should return a boolean based on whether the current locked target is occupied. 
+         * Normally set current locked target to current best target. 
+         * if current best target is null, return false. 
+         * generate stats about target position, to be stored in a pose2D.
+        */
+    }
+
+    public void targetRetrieved() {
+        currentLockedTarget = null;
+    }
+
     public boolean noteVisible(){
         var result1 = noteCamera.getLatestResult();
         if (result1.hasTargets()) {
@@ -106,7 +129,7 @@ public class VisionSubsystem extends SubsystemBase {
         
     
 
-        public Command waitForRing() {
+    public Command waitForRing() {
         return Commands.waitUntil(() -> noteVisible());
     }
     
