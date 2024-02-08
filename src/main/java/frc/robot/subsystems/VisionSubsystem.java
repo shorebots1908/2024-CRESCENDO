@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,7 +41,9 @@ public class VisionSubsystem extends SubsystemBase {
 
     private DriveSubsystem m_DriveSubsystem;
     private boolean noteVisible = false;
+    private boolean noteLocked = false;
     private boolean apriltagVisible = false;
+
     PhotonCamera driverCamera = new PhotonCamera("Driver Camera");
     Transform3d driverTransform = new Transform3d(new Translation3d(0.4, 0, 0.4), new Rotation3d(0,0,0));
     PhotonCamera noteCamera = new PhotonCamera("Note Detection");
@@ -49,7 +52,6 @@ public class VisionSubsystem extends SubsystemBase {
     Optional<EstimatedRobotPose> m_estimatedPose = null;
     //EstimatedRobotPose robotPose = new EstimatedRobotPose(null, 0, null, null);
     Pose2d odometryPose = null;
-
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, driverCamera, driverTransform );
     PhotonTrackedTarget currentBestTarget = null;
@@ -57,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
     
 
     public void periodic()
-    {   
+    {
         m_estimatedPose = getEstimatedGlobalPose(odometryPose);
         if(m_estimatedPose.isPresent()) {
             m_DriveSubsystem.addVisionMeasurement(m_estimatedPose.get());
@@ -70,11 +72,13 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(DriveSubsystem drive) {
         m_DriveSubsystem = drive;
         odometryPose = m_DriveSubsystem.getPose();
+
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         poseEstimator.setReferencePose(prevEstimatedRobotPose);
         return poseEstimator.update();
+
     }
 
 
@@ -84,6 +88,16 @@ public class VisionSubsystem extends SubsystemBase {
         /* this function should return a boolean based on whether the camera's latest results have a note target.
          * place that note target in currentBestTarget
         */
+        var noteLatestResult = noteCamera.getLatestResult();
+        if (noteLatestResult.hasTargets()) {
+            currentBestTarget = noteLatestResult.getBestTarget();
+            return noteVisible = true;
+        }
+        else {
+                currentBestTarget = null;
+                return noteVisible = false;
+        }
+        
     }
 
     public boolean lockNote() {
@@ -92,6 +106,17 @@ public class VisionSubsystem extends SubsystemBase {
          * if current best target is null, return false. 
          * generate stats about target position, to be stored in a pose2D.
         */
+
+        if (currentBestTarget != null) {
+            currentLockedTarget = currentBestTarget;
+                //TODO: generate data about target field position
+            return noteLocked = true;
+        }
+        else {
+            currentBestTarget = null;
+            return noteLocked = false;
+        }
+       
     }
 
     public void targetRetrieved() {
@@ -115,21 +140,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
        
 
-    public boolean apriltagVisible(){
-        var result2 = driverCamera.getLatestResult();
-        if (result2.hasTargets()) {
-                    // First calculate range
-          double range =
-                PhotonUtils.calculateDistanceToTargetMeters(
-                        CAMERA_HEIGHT_METERS,
-                        TARGET_HEIGHT_METERS,
-                        CAMERA_PITCH_RADIANS,
-                        Units.degreesToRadians(result2.getBestTarget().getPitch()));
 
-        
-        }
-        return apriltagVisible = true;
-        }
         
 
         
