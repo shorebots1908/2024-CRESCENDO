@@ -42,7 +42,11 @@ public class VisionSubsystem extends SubsystemBase {
     private DriveSubsystem m_DriveSubsystem;
     private boolean noteVisible = false;
     private boolean noteLocked = false;
-    private boolean apriltagVisible = false;
+    private boolean aprilTagVisible = false;
+    private double noteSkew = 0;
+    private double notePitch = 0;
+    private double noteArea = 0;
+    private double noteYaw = 0;
 
     PhotonCamera driverCamera = new PhotonCamera("Driver Camera");
     Transform3d driverTransform = new Transform3d(new Translation3d(0.4, 0, 0.4), new Rotation3d(0,0,0));
@@ -65,6 +69,18 @@ public class VisionSubsystem extends SubsystemBase {
             m_DriveSubsystem.addVisionMeasurement(m_estimatedPose.get());
         }
         odometryPose = m_DriveSubsystem.getPose();
+        if(currentLockedTarget != null) {
+            notePitch = currentLockedTarget.getPitch();
+            noteYaw = currentLockedTarget.getYaw();
+            noteArea = currentLockedTarget.getArea();
+            noteSkew = currentLockedTarget.getSkew();
+            notePitch = SmartDashboard.getNumber("Note Pitch", notePitch);
+            noteYaw = SmartDashboard.getNumber("Note Yaw", noteYaw);
+            noteArea = SmartDashboard.getNumber("Note Area", noteArea);
+            noteSkew = SmartDashboard.getNumber("Note Skew", noteSkew);
+
+        }
+
     }
 
 
@@ -111,6 +127,7 @@ public class VisionSubsystem extends SubsystemBase {
             currentLockedTarget = currentBestTarget;
                 //TODO: generate data about target field position
             return noteLocked = true;
+            
         }
         else {
             currentBestTarget = null;
@@ -121,6 +138,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public void targetRetrieved() {
         currentLockedTarget = null;
+
     }
 
     public boolean noteVisible(){
