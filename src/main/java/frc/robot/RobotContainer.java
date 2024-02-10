@@ -59,6 +59,7 @@ public class RobotContainer {
   Joystick m_driverJoystick = new Joystick(1);
 
   // The controller buttons being declared, can be used for setting different buttons to certain commands and/or functions
+  //XBOX CONTROLLER SETTING
     Trigger yButton = new JoystickButton(m_driverController, XboxController.Button.kY.value);
     Trigger xButton = new JoystickButton(m_driverController, XboxController.Button.kX.value);
     Trigger aButton = new JoystickButton(m_driverController, XboxController.Button.kA.value);
@@ -67,13 +68,21 @@ public class RobotContainer {
     Trigger rightBumper = new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value);
     Trigger rightStickPush = new JoystickButton(m_driverController, XboxController.Button.kRightStick.value);
     Trigger leftStickPush = new JoystickButton(m_driverController, XboxController.Button.kLeftStick.value);
+  //RADIOMASTER ZORRO CONTROLLER SETTING
+    Trigger leftBumperPush = new JoystickButton(m_driverJoystick, 1);
+    Trigger rightBumperPush = new JoystickButton(m_driverJoystick, 2);
+    Trigger leftBackPush = new JoystickButton(m_driverJoystick, 3);
+    Trigger rightBackPush = new JoystickButton(m_driverJoystick, 4);
+    Trigger leftPot = new JoystickButton(m_driverJoystick, 5);
+    Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
+
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the button bindings
-    //configureButtonBindings();
+    configureButtonBindings();
 
     // Configure default commands
     m_robotDrive.setDefaultCommand(
@@ -107,12 +116,12 @@ public class RobotContainer {
    * passing it to a
    * {@link JoystickButton}.
    */
-  // private void configureButtonBindings() {
-  //   new JoystickButton(m_driverController, Button.kR1.value)
-  //       .whileTrue(new RunCommand(
-  //           () -> m_robotDrive.setX(),
-  //           m_robotDrive));
-  // }
+  private void configureButtonBindings() {
+    new JoystickButton(m_driverJoystick, 1)
+        .whileTrue(new RunCommand(
+            () -> m_robotDrive.setX(),
+            m_robotDrive));
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
