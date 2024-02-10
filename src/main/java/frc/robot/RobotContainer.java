@@ -24,10 +24,13 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -47,11 +50,13 @@ import java.util.List;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-
+  private final VisionSubsystem m_vision = new VisionSubsystem(m_robotDrive);
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  Joystick m_driverJoystick = new Joystick(1);
 
   // The controller buttons being declared, can be used for setting different buttons to certain commands and/or functions
     Trigger yButton = new JoystickButton(m_driverController, XboxController.Button.kY.value);
@@ -68,21 +73,30 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the button bindings
-    configureButtonBindings();
+    //configureButtonBindings();
 
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
         // Turning is controlled by the X axis of the right stick.
+        // new RunCommand(
+        //     () -> m_robotDrive.drive(
+        //         modifyAxis(m_driverController.getLeftY()),
+        //         modifyAxis(m_driverController.getLeftX()),
+        //         modifyAxis(m_driverController.getRightX()),
+        //         true, true),
+        //     m_robotDrive));
         new RunCommand(
             () -> m_robotDrive.drive(
-                modifyAxis(m_driverController.getLeftY()),
-                modifyAxis(m_driverController.getLeftX()),
-                modifyAxis(m_driverController.getRightX()),
+                0.15 * modifyAxis(m_driverJoystick.getRawAxis(2)),
+                -0.15 * modifyAxis(m_driverJoystick.getRawAxis(3)),
+                0.15 * modifyAxis(m_driverJoystick.getRawAxis(0)),
                 true, true),
             m_robotDrive));
             
   }
+
+
 
   /**
    * Use this method to define your button->command mappings. Buttons can be
@@ -93,12 +107,12 @@ public class RobotContainer {
    * passing it to a
    * {@link JoystickButton}.
    */
-  private void configureButtonBindings() {
-    new JoystickButton(m_driverController, Button.kR1.value)
-        .whileTrue(new RunCommand(
-            () -> m_robotDrive.setX(),
-            m_robotDrive));
-  }
+  // private void configureButtonBindings() {
+  //   new JoystickButton(m_driverController, Button.kR1.value)
+  //       .whileTrue(new RunCommand(
+  //           () -> m_robotDrive.setX(),
+  //           m_robotDrive));
+  // }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

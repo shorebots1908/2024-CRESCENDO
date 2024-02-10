@@ -18,6 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
       private CANSparkMax m_intake1 = new CANSparkMax(9, MotorType.kBrushless);
       private CANSparkMax m_intake2 = new CANSparkMax(10, MotorType.kBrushless);
       private AnalogInput feedSensor;
+      
 
       //CONSTANTS
       private double intakeSpeed = 0.3;
