@@ -43,10 +43,10 @@ public class VisionSubsystem extends SubsystemBase {
     private boolean noteVisible = false;
     private boolean noteLocked = false;
     private boolean aprilTagVisible = false;
-    private double noteSkew = 0;
-    private double notePitch = 0;
-    private double noteArea = 0;
-    private double noteYaw = 0;
+    private double lockedNoteSkew = 0;
+    private double lockedNotePitch = 0;
+    private double lockedNoteArea = 0;
+    private double lockedNoteYaw = 0;
 
     PhotonCamera driverCamera = new PhotonCamera("Driver Camera");
     Transform3d driverTransform = new Transform3d(new Translation3d(0.4, 0, 0.4), new Rotation3d(0,0,0));
@@ -69,17 +69,20 @@ public class VisionSubsystem extends SubsystemBase {
             m_DriveSubsystem.addVisionMeasurement(m_estimatedPose.get());
         }
         odometryPose = m_DriveSubsystem.getPose();
+
+        SmartDashboard.putBoolean("Target Locked", currentLockedTarget != null);
         if(currentLockedTarget != null) {
-            notePitch = currentLockedTarget.getPitch();
-            noteYaw = currentLockedTarget.getYaw();
-            noteArea = currentLockedTarget.getArea();
-            noteSkew = currentLockedTarget.getSkew();
-            notePitch = SmartDashboard.getNumber("Note Pitch", notePitch);
-            noteYaw = SmartDashboard.getNumber("Note Yaw", noteYaw);
-            noteArea = SmartDashboard.getNumber("Note Area", noteArea);
-            noteSkew = SmartDashboard.getNumber("Note Skew", noteSkew);
+            lockedNotePitch = currentLockedTarget.getPitch();
+            lockedNoteYaw = currentLockedTarget.getYaw();
+            lockedNoteArea = currentLockedTarget.getArea();
+            lockedNoteSkew = currentLockedTarget.getSkew();
+            SmartDashboard.putNumber("Note Pitch", lockedNotePitch);
+            SmartDashboard.putNumber("Note Yaw", lockedNoteYaw);
+            SmartDashboard.putNumber("Note Area", lockedNoteArea);
+            SmartDashboard.putNumber("Note Skew", lockedNoteSkew);
 
         }
+        
 
     }
 
@@ -126,6 +129,9 @@ public class VisionSubsystem extends SubsystemBase {
         if (currentBestTarget != null) {
             currentLockedTarget = currentBestTarget;
                 //TODO: generate data about target field position
+                //currentLockedTarget.getBestCameraToTarget().;
+                //PhotonUtils.estimateCameraToTarget()
+                
             return noteLocked = true;
             
         }
