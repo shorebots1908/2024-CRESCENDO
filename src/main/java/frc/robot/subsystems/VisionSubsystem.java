@@ -79,7 +79,7 @@ public class VisionSubsystem extends SubsystemBase {
         odometryPose = m_DriveSubsystem.getPose();
         latestResult = driverCamera.getLatestResult();
         latestPoseResult = latestResult.getMultiTagResult().estimatedPose.best;
-
+        //function which checks if vision pose estimate is accurate is needed, and switches to other pose estimation if not
         SmartDashboard.putBoolean("Target Locked(NOTE)", currentLockedTarget != null);
         if(currentLockedTarget != null) {
             lockedNotePitch = currentLockedTarget.getPitch();
@@ -93,9 +93,10 @@ public class VisionSubsystem extends SubsystemBase {
             
 
         }
-        
+
 
     }
+
 
 
     public VisionSubsystem(DriveSubsystem drive) {
@@ -109,7 +110,8 @@ public class VisionSubsystem extends SubsystemBase {
         return poseEstimator.update();
 
     }
-    
+
+
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
         swervePoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
         }
@@ -148,6 +150,7 @@ public class VisionSubsystem extends SubsystemBase {
                 //currentLockedTarget.getBestCameraToTarget().;
                 //PhotonUtils.estimateCameraToTarget()
                 
+                
             return noteLocked = true;
             
         }
@@ -158,12 +161,6 @@ public class VisionSubsystem extends SubsystemBase {
        
     }
 
-    // public boolean isEstimateReady(Pose2d pose) {
-    // /* Disregard Vision if there are no targets in view */
-    // if (!driverCamera.get()
-    //     .visionAccurate()) { 
-    //   return false;
-    // }
 
     public void targetRetrieved() {
         currentLockedTarget = null;
