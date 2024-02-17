@@ -41,6 +41,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+
 import java.util.List;
 
 /*
@@ -121,6 +122,23 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
+    new JoystickButton(m_driverJoystick, 2)
+        .whileTrue(new RunCommand(
+          () -> m_robotDrive.zeroHeading(),
+         m_robotDrive));
+    // new JoystickButton(m_driverJoystick, 3)
+    //     .whileTrue(new RunCommand(
+    //       () -> ,
+    //      ));
+    // new JoystickButton(m_driverJoystick, 4)
+    //     .whileTrue(new RunCommand(
+    //       () -> ,
+    //      ));
+    // new JoystickButton(m_driverJoystick, 5)
+    //     .whileTrue(new RunCommand(
+    //       () -> ,
+    //      ));
+    // uncomment when new commands/functions for controller are needed (the above commands are set for radiomaster zorro, not xbox controller)
   }
 
   /**

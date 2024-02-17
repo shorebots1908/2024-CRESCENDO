@@ -6,6 +6,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.PhotonUtils;
 
@@ -13,16 +14,19 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagPoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 
 /*
  * TODO: functions based on analyisis of apriltag data (pos data)
@@ -43,16 +47,19 @@ public class VisionSubsystem extends SubsystemBase {
     private boolean noteVisible = false;
     private boolean noteLocked = false;
     private boolean aprilTagVisible = false;
+    // these listed below are relative camera->note, no field position of the note or robot is gained with this
     private double lockedNoteSkew = 0;
     private double lockedNotePitch = 0;
     private double lockedNoteArea = 0;
     private double lockedNoteYaw = 0;
-
+    private PhotonPipelineResult latestResult;
+    private Transform3d latestPoseResult;
+    private SwerveDrivePoseEstimator swervePoseEstimator;
     PhotonCamera driverCamera = new PhotonCamera("Driver Camera");
     Transform3d driverTransform = new Transform3d(new Translation3d(0.4, 0, 0.4), new Rotation3d(0,0,0));
     PhotonCamera noteCamera = new PhotonCamera("Note Detection");
     Transform3d noteTransform = new Transform3d(new Translation3d(-0.4,0,0.15), new Rotation3d(0,0,0));
-    
+    Field2d field = new Field2d();
     Optional<EstimatedRobotPose> m_estimatedPose = null;
     //EstimatedRobotPose robotPose = new EstimatedRobotPose(null, 0, null, null);
     Pose2d odometryPose = null;
@@ -60,6 +67,7 @@ public class VisionSubsystem extends SubsystemBase {
     PhotonPoseEstimator poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, driverCamera, driverTransform );
     PhotonTrackedTarget currentBestTarget = null;
     PhotonTrackedTarget currentLockedTarget = null;
+
     
 
     public void periodic()
@@ -69,8 +77,10 @@ public class VisionSubsystem extends SubsystemBase {
             m_DriveSubsystem.addVisionMeasurement(m_estimatedPose.get());
         }
         odometryPose = m_DriveSubsystem.getPose();
+        latestResult = driverCamera.getLatestResult();
+        latestPoseResult = latestResult.getMultiTagResult().estimatedPose.best;
 
-        SmartDashboard.putBoolean("Target Locked", currentLockedTarget != null);
+        SmartDashboard.putBoolean("Target Locked(NOTE)", currentLockedTarget != null);
         if(currentLockedTarget != null) {
             lockedNotePitch = currentLockedTarget.getPitch();
             lockedNoteYaw = currentLockedTarget.getYaw();
@@ -80,12 +90,12 @@ public class VisionSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Note Yaw", lockedNoteYaw);
             SmartDashboard.putNumber("Note Area", lockedNoteArea);
             SmartDashboard.putNumber("Note Skew", lockedNoteSkew);
+            
 
         }
         
 
     }
-
 
 
     public VisionSubsystem(DriveSubsystem drive) {
@@ -99,8 +109,14 @@ public class VisionSubsystem extends SubsystemBase {
         return poseEstimator.update();
 
     }
+    
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
+        swervePoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+        }
 
-
+     public void updatePoseOnField(String name, Pose2d pose) {
+     field.getObject(name).setPose(pose);
+     }
 
     //need to be implemented
     public boolean trackNote() {
@@ -141,6 +157,13 @@ public class VisionSubsystem extends SubsystemBase {
         }
        
     }
+
+    // public boolean isEstimateReady(Pose2d pose) {
+    // /* Disregard Vision if there are no targets in view */
+    // if (!driverCamera.get()
+    //     .visionAccurate()) { 
+    //   return false;
+    // }
 
     public void targetRetrieved() {
         currentLockedTarget = null;
