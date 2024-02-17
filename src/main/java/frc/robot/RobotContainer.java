@@ -30,9 +30,12 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.ShootingSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -55,6 +58,8 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final VisionSubsystem m_vision = new VisionSubsystem(m_robotDrive);
+  private final LEDSubsystem m_LedSubsystem;
+  private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Joystick m_driverJoystick = new Joystick(1);
@@ -76,15 +81,17 @@ public class RobotContainer {
     Trigger rightBackPush = new JoystickButton(m_driverJoystick, 4);
     Trigger leftPot = new JoystickButton(m_driverJoystick, 5);
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
-
+    NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_LedSubsystem = new LEDSubsystem(FMS);
+    
     // Configure the button bindings
     configureButtonBindings();
-
+    
     // Configure default commands
     m_robotDrive.setDefaultCommand(
         // The left stick controls translation of the robot.
@@ -126,10 +133,11 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
           () -> m_robotDrive.zeroHeading(),
          m_robotDrive));
-    // new JoystickButton(m_driverJoystick, 3)
-    //     .whileTrue(new RunCommand(
-    //       () -> ,
-    //      ));
+    new JoystickButton(m_driverJoystick, 3)
+        .whileTrue(new StartEndCommand(
+          () -> m_ShootingSubsystem.shoot(),
+          () -> m_ShootingSubsystem.stop()
+         ));
     // new JoystickButton(m_driverJoystick, 4)
     //     .whileTrue(new RunCommand(
     //       () -> ,
