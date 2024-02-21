@@ -112,13 +112,13 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
 
-    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-        swervePoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
-        }
+    // public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
+    //     swervePoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+    //     }
 
-     public void updatePoseOnField(String name, Pose2d pose) {
-     field.getObject(name).setPose(pose);
-     }
+    //  public void updatePoseOnField(String name, Pose2d pose) {
+    //  field.getObject(name).setPose(pose);
+    //  }
 
     //need to be implemented
     public boolean trackNote() {

@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /*
@@ -14,14 +14,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class ShootingSubsystem extends SubsystemBase {
-    
+
     private CANSparkMax m_shooter1 = new CANSparkMax(13, MotorType.kBrushless);
     private CANSparkMax m_shooter2 = new CANSparkMax(14, MotorType.kBrushless);
 
-    public ShootingSubsystem () {
-        
-    }
+
     public void shoot() {
+      
         m_shooter1.set(1);
         m_shooter2.set(1);
     }
@@ -30,7 +29,11 @@ public class ShootingSubsystem extends SubsystemBase {
         m_shooter1.stopMotor();
         m_shooter2.stopMotor();
     }
+    @Override
+    public void periodic() {
 
+
+    }
 
 
 

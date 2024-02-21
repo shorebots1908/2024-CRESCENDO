@@ -64,5 +64,9 @@ public class IntakeSubsystem extends SubsystemBase {
         m_intake1.set(feedSpeed);
         m_intake2.set(feedSpeed);
     }
+    public void intakeStop() {
+        m_intake1.stopMotor();
+        m_intake2.stopMotor();
+    }
 
 }

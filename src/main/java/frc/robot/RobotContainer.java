@@ -30,6 +30,7 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShootingSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -60,6 +61,7 @@ public class RobotContainer {
   private final VisionSubsystem m_vision = new VisionSubsystem(m_robotDrive);
   private final LEDSubsystem m_LedSubsystem;
   private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Joystick m_driverJoystick = new Joystick(1);
@@ -138,11 +140,20 @@ public class RobotContainer {
           () -> m_ShootingSubsystem.shoot(),
           () -> m_ShootingSubsystem.stop()
          ));
-    // new JoystickButton(m_driverJoystick, 4)
+    new JoystickButton(m_driverJoystick, 4)
+        .whileTrue(new StartEndCommand(
+          () -> m_IntakeSubsystem.noteIntake(),
+          () -> m_IntakeSubsystem.intakeStop()
+         ));
+    // new JoystickButton(m_driverJoystick, 5)
     //     .whileTrue(new RunCommand(
     //       () -> ,
     //      ));
-    // new JoystickButton(m_driverJoystick, 5)
+    // new JoystickButton(m_driverJoystick, 6)
+    //     .whileTrue(new RunCommand(
+    //       () -> ,
+    //      ));
+    // new JoystickButton(m_driverJoystick, 7)
     //     .whileTrue(new RunCommand(
     //       () -> ,
     //      ));

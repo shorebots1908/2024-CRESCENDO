@@ -10,6 +10,8 @@ public class LEDSubsystem extends SubsystemBase {
     private double yellow = 0.69; 
     private double purple = 0.91; 
     private double green = 0.77; 
+    private double red = 0.61;
+    private double blue = 0.87;
     private double teamColor;
 
     
