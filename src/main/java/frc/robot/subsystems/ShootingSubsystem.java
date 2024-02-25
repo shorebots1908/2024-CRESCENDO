@@ -23,8 +23,8 @@ public class ShootingSubsystem extends SubsystemBase {
 
     public void shoot() {
         
-        m_shooter1.set(1);
-        m_shooter2.set(1);
+        m_shooter1.set(.2);
+        m_shooter2.set(.2);
     }
 
     public void stop(){

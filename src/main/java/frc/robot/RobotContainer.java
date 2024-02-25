@@ -24,6 +24,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
+import edu.wpi.first.wpilibj.simulation.JoystickSim;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Constants.AutoConstants;
@@ -34,7 +35,9 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShootingSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.utils.JoystickAnalogButton;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -67,7 +70,7 @@ public class RobotContainer {
   Joystick m_driverJoystick = new Joystick(1);
 
   // The controller buttons being declared, can be used for setting different buttons to certain commands and/or functions
-  //XBOX CONTROLLER SETTING
+  //XBOX CONTROLLER IDENTIFICATION
     Trigger yButton = new JoystickButton(m_driverController, XboxController.Button.kY.value);
     Trigger xButton = new JoystickButton(m_driverController, XboxController.Button.kX.value);
     Trigger aButton = new JoystickButton(m_driverController, XboxController.Button.kA.value);
@@ -76,14 +79,18 @@ public class RobotContainer {
     Trigger rightBumper = new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value);
     Trigger rightStickPush = new JoystickButton(m_driverController, XboxController.Button.kRightStick.value);
     Trigger leftStickPush = new JoystickButton(m_driverController, XboxController.Button.kLeftStick.value);
-  //RADIOMASTER ZORRO CONTROLLER SETTING
+  //RADIOMASTER ZORRO CONTROLLER IDENTIFICATION
     Trigger leftBumperPush = new JoystickButton(m_driverJoystick, 1);
     Trigger rightBumperPush = new JoystickButton(m_driverJoystick, 2);
     Trigger leftBackPush = new JoystickButton(m_driverJoystick, 3);
     Trigger rightBackPush = new JoystickButton(m_driverJoystick, 4);
     Trigger leftPot = new JoystickButton(m_driverJoystick, 5);
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
+    Trigger axisButton1 = new JoystickButton(m_driverJoystick, 7);
     NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
+    Trigger test = new Trigger((() -> m_driverJoystick.getRawAxis(6) > 0.5));
+    Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(10) > 0.5));
+    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -107,9 +114,9 @@ public class RobotContainer {
         //     m_robotDrive));
         new RunCommand(
             () -> m_robotDrive.drive(
-                0.15 * modifyAxis(m_driverJoystick.getRawAxis(2)),
-                -0.15 * modifyAxis(m_driverJoystick.getRawAxis(3)),
-                0.15 * modifyAxis(m_driverJoystick.getRawAxis(0)),
+                -0.15 *  modifyAxis(m_driverJoystick.getRawAxis(2)),
+                0.15 * modifyAxis(m_driverJoystick.getRawAxis(3)),
+                0.15 *  modifyAxis(m_driverJoystick.getRawAxis(0)),
                 true, true),
             m_robotDrive));
             
@@ -127,40 +134,55 @@ public class RobotContainer {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(m_driverJoystick, 1)
+    new JoystickButton(m_driverJoystick, 5)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
-    new JoystickButton(m_driverJoystick, 2)
+    new JoystickButton(m_driverJoystick, 6)
         .whileTrue(new RunCommand(
           () -> m_robotDrive.zeroHeading(),
          m_robotDrive));
-    new JoystickButton(m_driverJoystick, 3)
+    new JoystickButton(m_driverJoystick, 2)
         .whileTrue(new StartEndCommand(
           () -> m_ShootingSubsystem.shoot(),
           () -> m_ShootingSubsystem.stop()
          ));
+         new FunctionalCommand(null, null, null, null);
+    new JoystickButton(m_driverJoystick, 1)
+        .whileTrue(new FunctionalCommand(
+          null,
+          () -> m_IntakeSubsystem.noteIntake(),
+          (x) -> m_IntakeSubsystem.intakeStop(), 
+          () -> m_IntakeSubsystem.intakeSensor()
+         ));
+    new JoystickButton(m_driverJoystick, 3)
+        .whileTrue(new StartEndCommand(
+          () -> m_IntakeSubsystem.noteUntake(),
+          () -> m_IntakeSubsystem.intakeStop(),
+          m_IntakeSubsystem
+         ));
     new JoystickButton(m_driverJoystick, 4)
         .whileTrue(new StartEndCommand(
-          () -> m_IntakeSubsystem.noteIntake(),
+          () -> m_IntakeSubsystem.noteFeed(),
           () -> m_IntakeSubsystem.intakeStop()
          ));
-    new JoystickButton(m_driverJoystick, 5)
-        .whileTrue(new RunCommand(
-          () -> m_IntakeSubsystem.noteUntake(),
-          m_IntakeSubsystem
-         ));
-    new JoystickButton(m_driverJoystick, 6)
-        .whileTrue(new RunCommand(
+    test
+        .whileTrue(new StartEndCommand(
           () -> m_IntakeSubsystem.noteFeed(),
-          m_IntakeSubsystem
-         ));
+          () -> m_IntakeSubsystem.intakeStop()
+        ));
+    
     // new JoystickButton(m_driverJoystick, 7)
     //     .whileTrue(new RunCommand(
     //       () -> ,
     //      ));
     // uncomment when new commands/functions for controller are needed (the above commands are set for radiomaster zorro, not xbox controller)
+
+    //the below commands are for axis NOT buttons, these shouldnt be messed with too much 
+
   }
+
+  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -208,8 +230,18 @@ public class RobotContainer {
     return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false));
   }
 
-  //functions to smooth controller input
+  public void axisBoolean(Joystick control, int axis, Command action) {
+    if (control.getRawAxis(axis) > 0.99) {
+      action.execute();
+    }
+  }
 
+
+
+
+
+
+  //functions to smooth controller input
   private static double modifyAxis(double value) {
     // Deadband
     value = -MathUtil.applyDeadband(value, OIConstants.kDriveDeadband);
