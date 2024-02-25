@@ -145,14 +145,16 @@ public class RobotContainer {
           () -> m_IntakeSubsystem.noteIntake(),
           () -> m_IntakeSubsystem.intakeStop()
          ));
-    // new JoystickButton(m_driverJoystick, 5)
-    //     .whileTrue(new RunCommand(
-    //       () -> ,
-    //      ));
-    // new JoystickButton(m_driverJoystick, 6)
-    //     .whileTrue(new RunCommand(
-    //       () -> ,
-    //      ));
+    new JoystickButton(m_driverJoystick, 5)
+        .whileTrue(new RunCommand(
+          () -> m_IntakeSubsystem.noteUntake(),
+          m_IntakeSubsystem
+         ));
+    new JoystickButton(m_driverJoystick, 6)
+        .whileTrue(new RunCommand(
+          () -> m_IntakeSubsystem.noteFeed(),
+          m_IntakeSubsystem
+         ));
     // new JoystickButton(m_driverJoystick, 7)
     //     .whileTrue(new RunCommand(
     //       () -> ,

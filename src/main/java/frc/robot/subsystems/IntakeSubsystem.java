@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.CAN;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -23,7 +25,7 @@ public class IntakeSubsystem extends SubsystemBase {
       //CONSTANTS
       private double intakeSpeed = 0.3;
       private double feedSpeed = 1;
-      private double intakeReverse = -0.2;
+      private double intakeReverse = -0.4; // removed negative while testing
       private int sensorThreshold = 500;
       private boolean intakeOn = false;
 
@@ -40,6 +42,8 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Intake Sensor Value", feedSensor.getValue());
+        RelativeEncoder intake1Encoder = m_intake1.getEncoder();
+        RelativeEncoder intake2Encoder = m_intake2.getEncoder();
     }
 
     public void noteIntake() {
@@ -58,6 +62,7 @@ public class IntakeSubsystem extends SubsystemBase {
         m_intake1.set(intakeReverse);
         m_intake2.set(intakeReverse);
     }
+    
 
     public void noteFeed() {
         //TODO: run intake to feed into shooter, ignoring sensor value.
@@ -65,6 +70,11 @@ public class IntakeSubsystem extends SubsystemBase {
         m_intake2.set(feedSpeed);
     }
     public void intakeStop() {
+        m_intake1.stopMotor();
+        m_intake2.stopMotor();
+    }
+    public void noteFeedStop() {
+        Timer.delay(1.5);
         m_intake1.stopMotor();
         m_intake2.stopMotor();
     }
