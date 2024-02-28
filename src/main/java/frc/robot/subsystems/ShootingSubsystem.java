@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /*
@@ -23,8 +24,8 @@ public class ShootingSubsystem extends SubsystemBase {
 
     public void shoot() {
         
-        m_shooter1.set(.2);
-        m_shooter2.set(.2);
+        m_shooter1.set(1);
+        m_shooter2.set(1);
     }
 
     public void stop(){

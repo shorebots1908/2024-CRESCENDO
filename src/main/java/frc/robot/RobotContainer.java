@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.simulation.JoystickSim;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
@@ -38,9 +39,11 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.utils.JoystickAnalogButton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -143,11 +146,10 @@ public class RobotContainer {
           () -> m_robotDrive.zeroHeading(),
          m_robotDrive));
     new JoystickButton(m_driverJoystick, 2)
-        .whileTrue(new StartEndCommand(
-          () -> m_ShootingSubsystem.shoot(),
-          () -> m_ShootingSubsystem.stop()
-         ));
-         new FunctionalCommand(null, null, null, null);
+        .whileTrue(new ParallelCommandGroup(
+          new StartEndCommand(m_ShootingSubsystem::shoot, m_ShootingSubsystem::stop, m_ShootingSubsystem),
+          new WaitCommand(0.25).andThen(new StartEndCommand(m_IntakeSubsystem::noteFeed, m_IntakeSubsystem::noteFeedStop, m_IntakeSubsystem))
+        ));
     new JoystickButton(m_driverJoystick, 1)
         .whileTrue(new FunctionalCommand(
           null,
