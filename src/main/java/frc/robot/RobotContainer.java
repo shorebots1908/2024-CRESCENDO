@@ -168,6 +168,7 @@ public class RobotContainer {
           () -> m_IntakeSubsystem.noteFeed(),
           () -> m_IntakeSubsystem.intakeStop()
          ));
+         //Trigger defined elsewhere, no need for extra stuff here
     test
         .whileTrue(new StartEndCommand(
           () -> m_IntakeSubsystem.noteFeed(),
@@ -179,8 +180,6 @@ public class RobotContainer {
     //       () -> ,
     //      ));
     // uncomment when new commands/functions for controller are needed (the above commands are set for radiomaster zorro, not xbox controller)
-
-    //the below commands are for axis NOT buttons, these shouldnt be messed with too much 
 
   }
 

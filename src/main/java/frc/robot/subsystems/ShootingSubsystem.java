@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /*
- * TODO: use timer to set up shooting; short delay to let shooting motors spin up (this allows for powerful and precise shooting)
+ * 
  * TODO: modes for shooting; controller switches with 3 diff power modes
  * 
  */
@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShootingSubsystem extends SubsystemBase {
 
-    private CANSparkMax m_shooter1 = new CANSparkMax(13, MotorType.kBrushless);
-    private CANSparkMax m_shooter2 = new CANSparkMax(14, MotorType.kBrushless);
+    private CANSparkMax m_shooter1 = new CANSparkMax(11, MotorType.kBrushless);
+    private CANSparkMax m_shooter2 = new CANSparkMax(12, MotorType.kBrushless);
 
     public void shoot() {
         
