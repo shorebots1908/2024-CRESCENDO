@@ -163,7 +163,7 @@ public class RobotContainer {
         ));
     new JoystickButton(m_driverJoystick, 1)
         .whileTrue(new FunctionalCommand(
-          null,
+          () ->{},
           () -> m_IntakeSubsystem.noteIntake(),
           (x) -> m_IntakeSubsystem.intakeStop(), 
           () -> m_IntakeSubsystem.intakeSensor()
