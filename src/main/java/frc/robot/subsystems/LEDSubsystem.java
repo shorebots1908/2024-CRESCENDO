@@ -13,7 +13,6 @@ public class LEDSubsystem extends SubsystemBase {
     private double red = 0.61;
     private double blue = 0.87;
     private double teamColor;
-
     
     public LEDSubsystem(NetworkTable FMS){
         if (FMS.getEntry("isRedAlliance").getBoolean(false)) {
@@ -22,6 +21,7 @@ public class LEDSubsystem extends SubsystemBase {
         else {
             teamColor = 0.87;
         }
+        
     }
     public void setLEDColor(double pwmColorCode) {
         ledStrip.set(pwmColorCode);

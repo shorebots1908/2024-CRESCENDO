@@ -24,6 +24,19 @@ public class LiftSubsystem extends SubsystemBase {
     private double encoder2Scale = 1;
     private double maxDeviation = 4;
     private double speed = 0.80;
+
+    public void control(double direction) {
+        if(direction != 0)
+        {
+            syncMotors(speed * direction, lifter1Encoder.getPosition(), lifter2Encoder.getPosition());
+            lifter1.set(speed * direction*encoder1Scale);
+            lifter2.set(speed * direction*encoder2Scale);
+        }
+        else {
+            liftersStop();
+        }
+    }
+
     public void lift() {
         syncMotors(speed, lifter1Encoder.getPosition(), lifter2Encoder.getPosition());
         lifter1.set(speed*encoder1Scale);

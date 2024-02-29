@@ -34,6 +34,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LiftSubsystem;
 import frc.robot.subsystems.ShootingSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.utils.JoystickAnalogButton;
@@ -66,6 +67,7 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final VisionSubsystem m_vision = new VisionSubsystem(m_robotDrive);
   private final LEDSubsystem m_LedSubsystem;
+  private final LiftSubsystem m_LiftSubsystem = new LiftSubsystem();
   private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   // The driver's controller
@@ -91,9 +93,10 @@ public class RobotContainer {
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
     Trigger axisButton1 = new JoystickButton(m_driverJoystick, 7);
     NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
-    Trigger test = new Trigger((() -> m_driverJoystick.getRawAxis(6) > 0.5));
+    Trigger test = new Trigger((() -> m_driverJoystick.getRawAxis(7) > 0.5));
     Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(10) > 0.5));
-    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
+    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(7) < 0.5));
+
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -122,7 +125,9 @@ public class RobotContainer {
                 0.15 *  modifyAxis(m_driverJoystick.getRawAxis(0)),
                 true, true),
             m_robotDrive));
-            
+      m_LiftSubsystem.setDefaultCommand(new RunCommand(
+        () -> m_LiftSubsystem.control(m_driverJoystick.getRawAxis(6)),
+        m_LiftSubsystem));
   }
 
 
@@ -141,14 +146,20 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
-    new JoystickButton(m_driverJoystick, 6)
-        .whileTrue(new RunCommand(
-          () -> m_robotDrive.zeroHeading(),
-         m_robotDrive));
+    // new JoystickButton(m_driverJoystick, 6)
+    //     .whileTrue(new StartEndCommand(
+    //       () -> m_LiftSubsystem.lift(),
+    //       () -> m_LiftSubsystem.liftersStop(),
+    //      m_LiftSubsystem));
     new JoystickButton(m_driverJoystick, 2)
-        .whileTrue(new ParallelCommandGroup(
-          new StartEndCommand(m_ShootingSubsystem::shoot, m_ShootingSubsystem::stop, m_ShootingSubsystem),
-          new WaitCommand(0.25).andThen(new StartEndCommand(m_IntakeSubsystem::noteFeed, m_IntakeSubsystem::noteFeedStop, m_IntakeSubsystem))
+        .whileTrue(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         new ParallelCommandGroup(
+          new StartEndCommand(() -> m_ShootingSubsystem.shoot(), () -> m_ShootingSubsystem.stop(), m_ShootingSubsystem)
+          .alongWith(
+            new WaitCommand(0.25)
+            .andThen(
+              new StartEndCommand(() -> m_IntakeSubsystem.noteFeed(), () -> m_IntakeSubsystem.noteFeedStop(), m_IntakeSubsystem)
+            )
+          )
         ));
     new JoystickButton(m_driverJoystick, 1)
         .whileTrue(new FunctionalCommand(
@@ -174,6 +185,11 @@ public class RobotContainer {
           () -> m_IntakeSubsystem.noteFeed(),
           () -> m_IntakeSubsystem.intakeStop()
         ));
+    
+
+    
+    
+
     
     // new JoystickButton(m_driverJoystick, 7)
     //     .whileTrue(new RunCommand(
