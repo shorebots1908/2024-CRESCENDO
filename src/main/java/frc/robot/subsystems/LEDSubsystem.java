@@ -1,7 +1,10 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.ColorSensorV3.LEDCurrent;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -13,17 +16,59 @@ public class LEDSubsystem extends SubsystemBase {
     private double red = 0.61;
     private double blue = 0.87;
     private double teamColor;
+    private String color = "";
     
     public LEDSubsystem(NetworkTable FMS){
         if (FMS.getEntry("isRedAlliance").getBoolean(false)) {
-            teamColor = 0.61;
+            teamColor = red;
+            red();
         }
         else {
-            teamColor = 0.87;
+            teamColor = blue;
+            blue();
         }
         
     }
     public void setLEDColor(double pwmColorCode) {
         ledStrip.set(pwmColorCode);
     }
+    public void currentLEDColor() {
+        ledStrip.get();
+    }
+    public void periodic() {
+        SmartDashboard.putString("Current LED Color", color);
+    }
+
+    public void yellow() {
+        setLEDColor(yellow);
+        color = "yellow";
+    }
+
+    public void green() {
+        setLEDColor(green);
+        color = "green";
+    }
+    public void blue() {
+        setLEDColor(blue);
+        color = "blue";
+    }
+    public void red() {
+        setLEDColor(red);
+        color = "red";
+
+    }
+    public void purple() {
+        setLEDColor(purple);
+        color = "purple";
+    }
+    public void teamColor() {
+        setLEDColor(teamColor);
+        if(teamColor == red){
+            color = "red";
+        }
+        else {
+            color = "blue";
+        }
+    }
 }
+ 

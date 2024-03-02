@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /*
@@ -24,6 +25,7 @@ public class LiftSubsystem extends SubsystemBase {
     private double encoder2Scale = 1;
     private double maxDeviation = 4;
     private double speed = 0.80;
+    
 
     public void control(double direction) {
         if(direction != 0)
@@ -57,6 +59,10 @@ public class LiftSubsystem extends SubsystemBase {
         lifter2Encoder.setPosition(0);
     }
 
+
+    public LiftSubsystem() {
+
+    }
  
 
     public void syncMotors(double speed, double Encoder1, double Encoder2) {
@@ -91,6 +97,13 @@ public class LiftSubsystem extends SubsystemBase {
                 encoder2Scale = 1;
             }
         }
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Lifter 1 Encoder", lifter1Encoder.getPosition());
+        SmartDashboard.putNumber("Lifter 2 Encoder", lifter2Encoder.getPosition());
+
     }
 
 

@@ -19,18 +19,22 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.simulation.JoystickSim;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.CommandsContainer;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
@@ -70,6 +74,9 @@ public class RobotContainer {
   private final LiftSubsystem m_LiftSubsystem = new LiftSubsystem();
   private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+
+  //command container class
+  CommandsContainer commands = new CommandsContainer();
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Joystick m_driverJoystick = new Joystick(1);
@@ -93,7 +100,7 @@ public class RobotContainer {
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
     Trigger axisButton1 = new JoystickButton(m_driverJoystick, 7);
     NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
-    Trigger test = new Trigger((() -> m_driverJoystick.getRawAxis(7) > 0.5));
+    Trigger switch1 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
     Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(10) > 0.5));
     Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(7) < 0.5));
 
@@ -108,23 +115,7 @@ public class RobotContainer {
     configureButtonBindings();
     
     // Configure default commands
-    m_robotDrive.setDefaultCommand(
-        // The left stick controls translation of the robot.
-        // Turning is controlled by the X axis of the right stick.
-        // new RunCommand(
-        //     () -> m_robotDrive.drive(
-        //         modifyAxis(m_driverController.getLeftY()),
-        //         modifyAxis(m_driverController.getLeftX()),
-        //         modifyAxis(m_driverController.getRightX()),
-        //         true, true),
-        //     m_robotDrive));
-        new RunCommand(
-            () -> m_robotDrive.drive(
-                -0.15 *  modifyAxis(m_driverJoystick.getRawAxis(2)),
-                0.15 * modifyAxis(m_driverJoystick.getRawAxis(3)),
-                0.15 *  modifyAxis(m_driverJoystick.getRawAxis(0)),
-                true, true),
-            m_robotDrive));
+    m_robotDrive.setDefaultCommand(commands.defaultDriveCommand(m_robotDrive, m_driverJoystick));
       m_LiftSubsystem.setDefaultCommand(new RunCommand(
         () -> m_LiftSubsystem.control(m_driverJoystick.getRawAxis(6)),
         m_LiftSubsystem));
@@ -152,12 +143,22 @@ public class RobotContainer {
     //       () -> m_LiftSubsystem.liftersStop(),
     //      m_LiftSubsystem));
     new JoystickButton(m_driverJoystick, 2)
-        .whileTrue(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         new ParallelCommandGroup(
-          new StartEndCommand(() -> m_ShootingSubsystem.shoot(), () -> m_ShootingSubsystem.stop(), m_ShootingSubsystem)
+        .onTrue(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         new ParallelCommandGroup(
+          new FunctionalCommand(
+            () -> {m_ShootingSubsystem.timerInit();},
+            () -> m_ShootingSubsystem.shoot(), 
+            (x) -> m_ShootingSubsystem.stop(), 
+            () -> {return (m_ShootingSubsystem.getTime() > 0.75);},
+            m_ShootingSubsystem)
           .alongWith(
             new WaitCommand(0.25)
             .andThen(
-              new StartEndCommand(() -> m_IntakeSubsystem.noteFeed(), () -> m_IntakeSubsystem.noteFeedStop(), m_IntakeSubsystem)
+              new FunctionalCommand(
+                () -> {},
+                () -> m_IntakeSubsystem.noteFeed(), 
+                (x) -> m_IntakeSubsystem.noteFeedStop(), 
+                () -> {return (m_ShootingSubsystem.getTime() > 0.75);},
+                m_IntakeSubsystem)
             )
           )
         ));
@@ -180,10 +181,9 @@ public class RobotContainer {
           () -> m_IntakeSubsystem.intakeStop()
          ));
          //Trigger defined elsewhere, no need for extra stuff here
-    test
-        .whileTrue(new StartEndCommand(
-          () -> m_IntakeSubsystem.noteFeed(),
-          () -> m_IntakeSubsystem.intakeStop()
+    switch1
+        .whileTrue(new RunCommand(
+          () -> m_robotDrive.zeroHeading()
         ));
     
 
@@ -198,9 +198,13 @@ public class RobotContainer {
     // uncomment when new commands/functions for controller are needed (the above commands are set for radiomaster zorro, not xbox controller)
 
   }
-
-  
-
+public void checkFieldColor() {
+  // The origin is always blue. When our alliance is red, X and Y need to be inverted
+var alliance = DriverStation.getAlliance();
+var invert = 1;
+if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+    invert = -1;
+}}
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -257,7 +261,9 @@ public class RobotContainer {
 
 
 
-
+public void periodic () {
+  
+}
   //functions to smooth controller input
   private static double modifyAxis(double value) {
     // Deadband
