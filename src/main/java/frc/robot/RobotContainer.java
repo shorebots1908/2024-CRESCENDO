@@ -100,9 +100,9 @@ public class RobotContainer {
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
     Trigger axisButton1 = new JoystickButton(m_driverJoystick, 7);
     NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
-    Trigger switch1 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
+    Trigger switch1 = new Trigger((() -> m_driverJoystick.getRawAxis(7) > 0.5));
     Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(10) > 0.5));
-    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(7) < 0.5));
+    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(6) < 0.5));
 
 
   /**
@@ -135,8 +135,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     new JoystickButton(m_driverJoystick, 5)
         .whileTrue(new RunCommand(
-            () -> m_robotDrive.setX(),
-            m_robotDrive));
+            () -> m_LiftSubsystem.liftersReset(),
+            m_LiftSubsystem));
     // new JoystickButton(m_driverJoystick, 6)
     //     .whileTrue(new StartEndCommand(
     //       () -> m_LiftSubsystem.lift(),
@@ -183,7 +183,7 @@ public class RobotContainer {
          //Trigger defined elsewhere, no need for extra stuff here
     switch1
         .whileTrue(new RunCommand(
-          () -> m_robotDrive.zeroHeading()
+          () -> m_LiftSubsystem.liftersReset()
         ));
     
 
