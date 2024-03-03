@@ -151,16 +151,16 @@ public class RobotContainer {
               m_ShootingSubsystem.stop();
               m_ShootingSubsystem.timerStop();
             }, 
-            () -> {return (m_ShootingSubsystem.getTime() > 0.75);},
+            () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
             m_ShootingSubsystem)
           .alongWith(
-            new WaitCommand(0.25)
+            new WaitCommand(0.4)
             .andThen(
               new FunctionalCommand(
                 () -> {},
                 () -> m_IntakeSubsystem.noteFeed(), 
                 (x) -> m_IntakeSubsystem.noteFeedStop(), 
-                () -> {return (m_ShootingSubsystem.getTime() > 0.75);},
+                () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
                 m_IntakeSubsystem)
             )
           )
@@ -188,6 +188,20 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
           () -> m_LiftSubsystem.liftersReset()
         ));
+    testButton5
+        .whileTrue(new FunctionalCommand(
+          () -> {}, 
+          () -> {
+            m_IntakeSubsystem.throttledIntake(0.2);
+            m_ShootingSubsystem.throttledShooting(0.08);
+          }, 
+          (x) -> {
+            m_IntakeSubsystem.intakeStop(); 
+            m_ShootingSubsystem.stop();
+          }, 
+          () -> {return m_ShootingSubsystem.shootSensor();}, 
+          m_IntakeSubsystem, 
+          m_ShootingSubsystem));
     
 
 

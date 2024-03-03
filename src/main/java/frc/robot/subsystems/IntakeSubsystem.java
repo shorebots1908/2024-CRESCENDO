@@ -61,6 +61,10 @@ public class IntakeSubsystem extends SubsystemBase {
             m_intake2.stopMotor();
         }
     }
+    public void throttledIntake(double throttle) {
+        m_intake1.set(throttle);
+        m_intake2.set(throttle);
+    }
 
     public void noteUntake(){
         m_intake1.set(intakeReverse);

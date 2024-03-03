@@ -29,8 +29,9 @@ public class ShootingSubsystem extends SubsystemBase {
     private double sensorThreshold = 1300;
 
     public ShootingSubsystem() {
-        m_shooter1.setInverted(true);
-         shootSensor = new AnalogInput(1);
+        m_shooter1.setInverted(false);
+        m_shooter2.setInverted(true);
+        shootSensor = new AnalogInput(1);
     }
 
     public void timerInit(){
@@ -50,6 +51,10 @@ public class ShootingSubsystem extends SubsystemBase {
         
         m_shooter1.set(1);
         m_shooter2.set(1);
+    }
+    public void throttledShooting(double throttle) {
+        m_shooter1.set(throttle);
+        m_shooter2.set(throttle);
     }
 
     public void stop(){
