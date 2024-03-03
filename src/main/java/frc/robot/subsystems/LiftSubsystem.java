@@ -18,13 +18,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class LiftSubsystem extends SubsystemBase {
     private CANSparkMax lifter1 = new CANSparkMax(13, MotorType.kBrushless);
     private CANSparkMax lifter2 = new CANSparkMax(14, MotorType.kBrushless);
-    private RelativeEncoder lifter2Encoder = lifter2.getEncoder();
-    private RelativeEncoder lifter1Encoder = lifter1.getEncoder();
+    private RelativeEncoder lifter2Encoder, lifter1Encoder;
+    private double encoder1Position = 0, encoder2Position = 0;
     private double difference;
     private double encoder1Scale = 1;
     private double encoder2Scale = 1;
     private double maxDeviation = 4;
-    private double speed = -0.20;
+    private double speed = -0.50;
     
 
     public void control(double direction) {
@@ -56,26 +56,28 @@ public class LiftSubsystem extends SubsystemBase {
         lifter2.stopMotor();
     }
     public void liftersReset() {
-        lifter1Encoder.setPosition(0);
-        lifter2Encoder.setPosition(0);
+        lifter1Encoder.setPosition(4000);
+        lifter2Encoder.setPosition(4000);
+
     }
 
 
     public LiftSubsystem() {
-
+        lifter2Encoder = lifter2.getEncoder();
+        lifter1Encoder = lifter1.getEncoder();
     }
  
 
-    public void syncMotors(double speed, double Encoder1, double Encoder2) {
-        difference = Math.abs(Encoder1) - Math.abs(Encoder2);
-        if (speed < 0) {
+    public void syncMotors(double velocity, double Encoder1, double Encoder2) {
+        difference = Encoder1 - Encoder2;
+        if (velocity > 0) {
             if (difference > 0) {
-                encoder1Scale = Math.max((maxDeviation-difference)/(maxDeviation), 0);
+                encoder1Scale = Math.max((maxDeviation - Math.abs(difference))/(maxDeviation), 0);
                 encoder2Scale = 1;
             }
             else if(difference < 0) {
                 encoder1Scale = 1;
-                encoder2Scale = Math.max((maxDeviation+difference)/(maxDeviation), 0);
+                encoder2Scale = Math.max((maxDeviation - Math.abs(difference))/(maxDeviation), 0);
             }
             else
             {
@@ -83,14 +85,14 @@ public class LiftSubsystem extends SubsystemBase {
                 encoder2Scale = 1;
             }
         }
-        else if(speed > 0) {
-            if (difference < 0) {
-                encoder1Scale = Math.max((maxDeviation+difference)/(maxDeviation), 0);
-                encoder2Scale = 1;
-            }
-            else if(difference > 0) {
+        else if(velocity < 0) {
+            if (difference > 0) {
                 encoder1Scale = 1;
-                encoder2Scale = Math.max((maxDeviation-difference)/(maxDeviation), 0);
+                encoder2Scale = Math.max((maxDeviation - Math.abs(difference))/(maxDeviation), 0);
+            }
+            else if(difference < 0) {
+                encoder1Scale = Math.max((maxDeviation - Math.abs(difference))/(maxDeviation), 0);
+                encoder2Scale = 1;
             }
             else
             {
@@ -102,10 +104,13 @@ public class LiftSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Lifter 1 Encoder", lifter1Encoder.getPosition());
-        SmartDashboard.putNumber("Lifter 2 Encoder", lifter2Encoder.getPosition());
+        encoder1Position = lifter1Encoder.getPosition();
+        encoder2Position = lifter2Encoder.getPosition();
+        SmartDashboard.putNumber("Lifter 1 Encoder", encoder1Position);
+        SmartDashboard.putNumber("Lifter 2 Encoder", encoder2Position);
         SmartDashboard.putNumber("Encoder1", encoder1Scale);
         SmartDashboard.putNumber("Encoder2", encoder2Scale);
+        SmartDashboard.putNumber("Lift Difference", (maxDeviation - (encoder1Position - encoder2Position))/maxDeviation);
     }
 
 

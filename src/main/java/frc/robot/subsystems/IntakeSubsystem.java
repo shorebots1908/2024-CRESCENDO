@@ -29,7 +29,7 @@ public class IntakeSubsystem extends SubsystemBase {
       private double intakeSpeed = 0.3;
       private double feedSpeed = 1;
       private double intakeReverse = -0.4;
-      private int sensorThreshold = 500;
+      private int sensorThreshold = 800;
       private boolean intakeOn = false;
 
     public IntakeSubsystem() {
@@ -38,7 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeSpeed = SmartDashboard.getNumber("Intake Speed", intakeSpeed);
         intakeReverse = SmartDashboard.getNumber("Reverse Intake", intakeReverse); 
         intakeOn = SmartDashboard.getBoolean("Intake On", intakeOn);
-        feedSensor = new AnalogInput(1);
+        feedSensor = new AnalogInput(0);
 
     }
 
