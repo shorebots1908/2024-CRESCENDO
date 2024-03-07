@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -74,7 +76,8 @@ public class RobotContainer {
   private final LiftSubsystem m_LiftSubsystem = new LiftSubsystem();
   private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-
+  private UsbCamera camera1;
+  private UsbCamera camera2;
   //command container class
   CommandsContainer commands = new CommandsContainer();
   // The driver's controller
@@ -131,9 +134,7 @@ public class RobotContainer {
           }
         },
         m_LiftSubsystem));
-    
   }
-
 
 
   /**
@@ -241,7 +242,7 @@ public class RobotContainer {
           () -> {return (m_ShootingSubsystem.shootSensor());}, 
           m_IntakeSubsystem, 
           m_ShootingSubsystem));
-    
+        }
     
 
 
@@ -254,7 +255,7 @@ public class RobotContainer {
     //      ));
     // uncomment when new commands/functions for controller are needed (the above commands are set for radiomaster zorro, not xbox controller)
 
-  }
+  
 public void checkFieldColor() {
   // The origin is always blue. When our alliance is red, X and Y need to be inverted
 var alliance = DriverStation.getAlliance();

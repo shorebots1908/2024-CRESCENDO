@@ -27,7 +27,7 @@ public class LiftSubsystem extends SubsystemBase {
     private double encoder2Scale = 1;
     private double maxDeviation = 4;
     private double speed = -0.80;
-    private double slowThreshold = 20;
+    private double slowThreshold = 40;
     private double liftBottom = 4000;
     private double liftTop = 3498;
     
@@ -53,16 +53,16 @@ public class LiftSubsystem extends SubsystemBase {
                 liftersStop();
             }
             else if((encoder1Position > (liftBottom - slowThreshold + 2) || encoder2Position > (liftBottom - slowThreshold + 2)) && direction < 0){
-                lifter1.set(speed * direction * encoder1Scale * ((liftBottom - encoder1Position)/slowThreshold));
-                lifter2.set(speed * direction * encoder2Scale * ((liftBottom - encoder2Position)/slowThreshold));
+                lifter1.set(-1 * direction * encoder1Scale * ((liftBottom - encoder1Position)/slowThreshold));
+                lifter2.set(-1 * direction * encoder2Scale * ((liftBottom - encoder2Position)/slowThreshold));
             }
             else if ((encoder1Position < (liftTop + slowThreshold - 2) || encoder2Position < (liftTop + slowThreshold - 2 )) && direction > 0) {
-                lifter1.set(speed * direction * encoder1Scale * ((encoder1Position - liftTop)/slowThreshold));
-                lifter2.set(speed * direction * encoder2Scale * ((encoder2Position - liftTop)/slowThreshold));
+                lifter1.set(-1 * direction * encoder1Scale * ((encoder1Position - liftTop)/slowThreshold));
+                lifter2.set(-1 * direction * encoder2Scale * ((encoder2Position - liftTop)/slowThreshold));
             }
             else if (direction != 0) {
-                lifter1.set(speed * direction*encoder1Scale);
-                lifter2.set(speed * direction*encoder2Scale);
+                lifter1.set(-1 * direction*encoder1Scale);
+                lifter2.set(-1 * direction*encoder2Scale);
             }
             else {
                 liftersStop();

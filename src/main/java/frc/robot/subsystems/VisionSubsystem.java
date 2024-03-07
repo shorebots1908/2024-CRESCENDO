@@ -14,6 +14,7 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagPoseEstimator;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -102,7 +103,6 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(DriveSubsystem drive) {
         m_DriveSubsystem = drive;
         odometryPose = m_DriveSubsystem.getPose();
-
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
