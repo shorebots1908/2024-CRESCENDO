@@ -95,6 +95,7 @@ public class RobotContainer {
     Trigger rightBumper = new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value);
     Trigger rightStickPush = new JoystickButton(m_driverController, XboxController.Button.kRightStick.value);
     Trigger leftStickPush = new JoystickButton(m_driverController, XboxController.Button.kLeftStick.value);
+    Trigger back = new JoystickButton(m_driverController, XboxController.Button.kBack.value);
     
   //RADIOMASTER ZORRO CONTROLLER IDENTIFICATION
     Trigger leftBumperPush = new JoystickButton(m_driverJoystick, 1);
@@ -223,8 +224,8 @@ public class RobotContainer {
           () -> {},
           () -> {}
          ));
-         //Trigger defined elsewhere, no need for extra stuff here
-    switch1
+
+    new JoystickButton(m_driverController, 7)
         .whileTrue(new RunCommand(
           () -> m_LiftSubsystem.liftersReset()
         ));
@@ -253,7 +254,8 @@ public class RobotContainer {
     //     .whileTrue(new RunCommand(
     //       () -> ,
     //      ));
-    // uncomment when new commands/functions for controller are needed (the above commands are set for radiomaster zorro, not xbox controller)
+    // uncomment when new commands/functions for controller are needed 
+    //(the above commands are set for radiomaster zorro, not xbox controller)
 
   
 public void checkFieldColor() {
