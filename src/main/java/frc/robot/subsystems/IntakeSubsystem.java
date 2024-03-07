@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
       //CONSTANTS
       private double intakeSpeed = 0.3;
-      private double feedSpeed = 1;
+      private double feedSpeed = .6;
       private double intakeReverse = -0.4;
       private int sensorThreshold = 800;
       private boolean intakeOn = false;

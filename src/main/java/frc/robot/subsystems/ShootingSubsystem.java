@@ -26,7 +26,7 @@ public class ShootingSubsystem extends SubsystemBase {
     private Timer timer = new Timer();
     private double time;
     private AnalogInput shootSensor;
-    private double sensorThreshold = 1300;
+    private double sensorThreshold = 1500;
 
     public ShootingSubsystem() {
         m_shooter1.setInverted(false);

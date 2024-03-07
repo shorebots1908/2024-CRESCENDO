@@ -112,13 +112,13 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
 
-    // public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-    //     swervePoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
-    //     }
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
+        swervePoseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
+        }
 
-    //  public void updatePoseOnField(String name, Pose2d pose) {
-    //  field.getObject(name).setPose(pose);
-    //  }
+     public void updatePoseOnField(String name, Pose2d pose) {
+     field.getObject(name).setPose(pose);
+     }
 
     //need to be implemented
     public boolean trackNote() {
@@ -166,7 +166,7 @@ public class VisionSubsystem extends SubsystemBase {
         currentLockedTarget = null;
 
     }
-
+// the below command wont do much for now, could be used for commands later
     public boolean noteVisible(){
         var result1 = noteCamera.getLatestResult();
         if (result1.hasTargets()) {
@@ -177,6 +177,8 @@ public class VisionSubsystem extends SubsystemBase {
                         TARGET_HEIGHT_METERS,
                         CAMERA_PITCH_RADIANS,
                         Units.degreesToRadians(result1.getBestTarget().getPitch()));
+
+               //  m_DriveSubsystem.
 
          
         }

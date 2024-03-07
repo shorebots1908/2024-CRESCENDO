@@ -80,6 +80,7 @@ public class RobotContainer {
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Joystick m_driverJoystick = new Joystick(1);
+  Joystick m_assistJoystick = new Joystick(2);
 
   // The controller buttons being declared, can be used for setting different buttons to certain commands and/or functions
   //XBOX CONTROLLER IDENTIFICATION
@@ -91,6 +92,7 @@ public class RobotContainer {
     Trigger rightBumper = new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value);
     Trigger rightStickPush = new JoystickButton(m_driverController, XboxController.Button.kRightStick.value);
     Trigger leftStickPush = new JoystickButton(m_driverController, XboxController.Button.kLeftStick.value);
+    
   //RADIOMASTER ZORRO CONTROLLER IDENTIFICATION
     Trigger leftBumperPush = new JoystickButton(m_driverJoystick, 1);
     Trigger rightBumperPush = new JoystickButton(m_driverJoystick, 2);
@@ -102,7 +104,7 @@ public class RobotContainer {
     NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
     Trigger switch1 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
     Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(10) > 0.5));
-    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(6) < 0.5));
+    Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(4) > 0.5));
 
 
   /**
@@ -117,8 +119,19 @@ public class RobotContainer {
     // Configure default commands
     m_robotDrive.setDefaultCommand(commands.defaultDriveCommand(m_robotDrive, m_driverJoystick));
       m_LiftSubsystem.setDefaultCommand(new RunCommand(
-        () -> m_LiftSubsystem.control(m_driverJoystick.getRawAxis(6)),
+        () -> {
+          if(m_driverController.getPOV() == 0) {
+            m_LiftSubsystem.measuredControl(1);
+          }
+          else if(m_driverController.getPOV() == 180) {
+            m_LiftSubsystem.measuredControl(-1);
+          }
+          else {
+          m_LiftSubsystem.control(m_driverJoystick.getRawAxis(6));
+          }
+        },
         m_LiftSubsystem));
+    
   }
 
 
@@ -133,7 +146,7 @@ public class RobotContainer {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(m_driverJoystick, 5)
+    new JoystickButton(m_driverJoystick, 5) 
         .whileTrue(new RunCommand(
             () -> m_robotDrive.zeroHeading(),
             m_robotDrive));
@@ -142,6 +155,8 @@ public class RobotContainer {
     //       () -> m_LiftSubsystem.lift(),
     //       () -> m_LiftSubsystem.liftersStop(),
     //      m_LiftSubsystem));
+
+    new JoystickButton(m_driverController, 0);
     new JoystickButton(m_driverJoystick, 2)
         .onTrue(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         new ParallelCommandGroup(
           new FunctionalCommand(
@@ -151,16 +166,16 @@ public class RobotContainer {
               m_ShootingSubsystem.stop();
               m_ShootingSubsystem.timerStop();
             }, 
-            () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
+            () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
             m_ShootingSubsystem)
           .alongWith(
-            new WaitCommand(0.4)
+            new WaitCommand(2)
             .andThen(
               new FunctionalCommand(
                 () -> {},
                 () -> m_IntakeSubsystem.noteFeed(), 
                 (x) -> m_IntakeSubsystem.noteFeedStop(), 
-                () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
+                () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
                 m_IntakeSubsystem)
             )
           )
@@ -183,6 +198,30 @@ public class RobotContainer {
           () -> m_IntakeSubsystem.noteFeed(),
           () -> m_IntakeSubsystem.intakeStop()
          ));
+    new JoystickButton(m_assistJoystick, 1)
+        .whileTrue(new RunCommand(
+          () -> {m_robotDrive.setX();}
+         ));
+    new JoystickButton(m_assistJoystick, 2)
+        .whileTrue(new StartEndCommand(
+          () -> {m_LiftSubsystem.liftersReset();},
+          () -> {}
+         ));
+    new JoystickButton(m_assistJoystick, 3)
+        .whileTrue(new StartEndCommand(
+          () -> {},
+          () -> {}
+         ));
+    new JoystickButton(m_assistJoystick, 4)
+        .whileTrue(new StartEndCommand(
+          () -> {},
+          () -> {}
+         ));
+    new JoystickButton(m_assistJoystick, 6)
+        .whileTrue(new StartEndCommand(
+          () -> {},
+          () -> {}
+         ));
          //Trigger defined elsewhere, no need for extra stuff here
     switch1
         .whileTrue(new RunCommand(
@@ -190,18 +229,19 @@ public class RobotContainer {
         ));
     testButton5
         .whileTrue(new FunctionalCommand(
-          () -> {}, 
+          () -> {m_ShootingSubsystem.timerInit();}, 
           () -> {
-            m_IntakeSubsystem.throttledIntake(0.2);
-            m_ShootingSubsystem.throttledShooting(0.08);
+            m_IntakeSubsystem.throttledIntake(0.12);
+            m_ShootingSubsystem.throttledShooting(0.2);
           }, 
           (x) -> {
             m_IntakeSubsystem.intakeStop(); 
             m_ShootingSubsystem.stop();
           }, 
-          () -> {return m_ShootingSubsystem.shootSensor();}, 
+          () -> {return (m_ShootingSubsystem.shootSensor());}, 
           m_IntakeSubsystem, 
           m_ShootingSubsystem));
+    
     
 
 
