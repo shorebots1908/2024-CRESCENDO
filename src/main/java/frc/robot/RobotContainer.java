@@ -46,6 +46,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.utils.JoystickAnalogButton;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -53,6 +54,7 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -84,6 +86,7 @@ public class RobotContainer {
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
   Joystick m_driverJoystick = new Joystick(1);
   Joystick m_assistJoystick = new Joystick(2);
+  private final SendableChooser<String> autoSelector = new SendableChooser();
 
   // The controller buttons being declared, can be used for setting different buttons to certain commands and/or functions
   //XBOX CONTROLLER IDENTIFICATION
@@ -120,6 +123,12 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     
+    //Autonomous options
+    autoSelector.setDefaultOption("Amp on Left", "Amp on Left");
+    autoSelector.setDefaultOption("Amp on Right", "Amp on Right");
+
+    SmartDashboard.putData("Auto Mode", autoSelector);
+
     // Configure default commands
     m_robotDrive.setDefaultCommand(commands.defaultDriveCommand(m_robotDrive, m_driverJoystick));
       m_LiftSubsystem.setDefaultCommand(new RunCommand(
@@ -209,22 +218,10 @@ public class RobotContainer {
           () -> {m_LiftSubsystem.liftersReset();},
           () -> {}
          ));
-    new JoystickButton(m_assistJoystick, 3)
-        .whileTrue(new StartEndCommand(
-          () -> {},
-          () -> {}
-         ));
-    new JoystickButton(m_assistJoystick, 4)
-        .whileTrue(new StartEndCommand(
-          () -> {},
-          () -> {}
-         ));
-    new JoystickButton(m_assistJoystick, 6)
-        .whileTrue(new StartEndCommand(
-          () -> {},
-          () -> {}
-         ));
-
+    new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value)
+        .onTrue(new InstantCommand(
+          () -> {m_vision.lockNote();}
+        ));
     new JoystickButton(m_driverController, 7)
         .whileTrue(new RunCommand(
           () -> m_LiftSubsystem.liftersReset()
@@ -279,20 +276,15 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         .setKinematics(DriveConstants.kDriveKinematics);
 
     // An example trajectory to follow. All units in meters.
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(3, 0, new Rotation2d(0)),
+    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(List.of(new Pose2d(0, 0, new Rotation2d(0)),new Pose2d(2.2, 0, new Rotation2d(0))
+      ),
         config);
 
     var thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+    SwerveControllerCommand swerveControllerCommand1 = new SwerveControllerCommand(
         exampleTrajectory,
         m_robotDrive::getPose, // Functional interface to feed supplier
         DriveConstants.kDriveKinematics,
@@ -307,17 +299,52 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
     // Reset odometry to the starting pose of the trajectory.
     m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
 
+    InstantCommand setGyroRight = new InstantCommand(() -> m_robotDrive.setHeading(60));
+    InstantCommand setGyroLeft = new InstantCommand(() -> m_robotDrive.setHeading(-60));
     // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, false, false));
-  }
 
-  public void axisBoolean(Joystick control, int axis, Command action) {
-    if (control.getRawAxis(axis) > 0.99) {
-      action.execute();
+    String selectedAuto = autoSelector.getSelected();
+    switch(selectedAuto){
+      case "Amp on Left":
+        return setGyroLeft
+          .andThen(shoot)
+          .andThen(new WaitCommand(8))
+          .andThen(swerveControllerCommand1);
+      case "Amp on Right":
+        return setGyroRight
+          .andThen(shoot)
+          .andThen(new WaitCommand(8))
+          .andThen(swerveControllerCommand1);
     }
+    return swerveControllerCommand1.andThen(shoot).andThen();
   }
 
+  // public void axisBoolean(Joystick control, int axis, Command action) {
+  //   if (control.getRawAxis(axis) > 0.99) {
+  //     action.execute();
+  //   }
+  // }
 
+  ParallelCommandGroup shoot = new FunctionalCommand(
+    () -> {m_ShootingSubsystem.timerInit();},
+    () -> m_ShootingSubsystem.shoot(), 
+    (x) -> {
+      m_ShootingSubsystem.stop();
+      m_ShootingSubsystem.timerStop();
+    }, 
+    () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
+    m_ShootingSubsystem)
+  .alongWith(
+    new WaitCommand(2)
+    .andThen(
+      new FunctionalCommand(
+        () -> {},
+        () -> m_IntakeSubsystem.noteFeed(), 
+        (x) -> m_IntakeSubsystem.noteFeedStop(), 
+        () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
+        m_IntakeSubsystem)
+    )
+  );
 
 
 

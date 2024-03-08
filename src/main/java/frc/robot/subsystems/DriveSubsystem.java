@@ -253,6 +253,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.reset();
   }
 
+  public void setHeading(double heading) {
+    m_gyro.setGyroAngleZ(heading);
+  }
+
   /**
    * Returns the heading of the robot.
    *

@@ -15,6 +15,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagPoseEstimator;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -68,7 +69,7 @@ public class VisionSubsystem extends SubsystemBase {
     PhotonPoseEstimator poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, driverCamera, driverTransform );
     PhotonTrackedTarget currentBestTarget = null;
     PhotonTrackedTarget currentLockedTarget = null;
-
+    private UsbCamera camera1;
     
 
     public void periodic()
@@ -82,6 +83,7 @@ public class VisionSubsystem extends SubsystemBase {
         latestPoseResult = latestResult.getMultiTagResult().estimatedPose.best;
         //function which checks if vision pose estimate is accurate is needed, and switches to other pose estimation if not
         SmartDashboard.putBoolean("Target Locked(NOTE)", currentLockedTarget != null);
+        SmartDashboard.putString("TargetsData", noteCamera.getLatestResult().toString());
         if(currentLockedTarget != null) {
             lockedNotePitch = currentLockedTarget.getPitch();
             lockedNoteYaw = currentLockedTarget.getYaw();
@@ -91,9 +93,8 @@ public class VisionSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Note Yaw", lockedNoteYaw);
             SmartDashboard.putNumber("Note Area", lockedNoteArea);
             SmartDashboard.putNumber("Note Skew", lockedNoteSkew);
-            
-
         }
+        
 
 
     }
@@ -103,6 +104,9 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(DriveSubsystem drive) {
         m_DriveSubsystem = drive;
         odometryPose = m_DriveSubsystem.getPose();
+        camera1 = CameraServer.startAutomaticCapture(0);
+        camera1.setResolution(40, 30);
+        camera1.setFPS(15);
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
