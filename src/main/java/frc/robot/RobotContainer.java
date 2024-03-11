@@ -78,6 +78,7 @@ public class RobotContainer {
   private final LiftSubsystem m_LiftSubsystem = new LiftSubsystem();
   private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  private final CommandsContainer m_CommandsContainer = new CommandsContainer();
   private UsbCamera camera1;
   private UsbCamera camera2;
   //command container class
@@ -108,9 +109,9 @@ public class RobotContainer {
     Trigger leftPot = new JoystickButton(m_driverJoystick, 5);
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
     Trigger axisButton1 = new JoystickButton(m_driverJoystick, 7);
-    NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
+    // NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
     Trigger switch1 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
-    Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(10) > 0.5));
+    Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(6) > 0.5));
     Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(4) > 0.5));
 
 
@@ -118,7 +119,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_LedSubsystem = new LEDSubsystem(FMS);
+    m_LedSubsystem = new LEDSubsystem();
     
     // Configure the button bindings
     configureButtonBindings();
@@ -157,7 +158,7 @@ public class RobotContainer {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(m_driverJoystick, 5) 
+    new JoystickButton(m_driverController, 3) 
         .whileTrue(new RunCommand(
             () -> m_robotDrive.zeroHeading(),
             m_robotDrive));
@@ -198,18 +199,23 @@ public class RobotContainer {
           (x) -> m_IntakeSubsystem.intakeStop(), 
           () -> m_IntakeSubsystem.intakeSensor()
          ));
+
+    // switch1
+    //     .whileTrue(new InstantCommand(
+    //       () -> {m_CommandsContainer.fieldRelative = false;}
+    //       ));
     new JoystickButton(m_driverJoystick, 3)
         .whileTrue(new StartEndCommand(
           () -> m_IntakeSubsystem.noteUntake(),
           () -> m_IntakeSubsystem.intakeStop(),
           m_IntakeSubsystem
          ));
-    new JoystickButton(m_driverJoystick, 4)
+    new JoystickButton(m_driverController, 1)
         .whileTrue(new StartEndCommand(
           () -> m_IntakeSubsystem.noteFeed(),
           () -> m_IntakeSubsystem.intakeStop()
          ));
-    new JoystickButton(m_assistJoystick, 1)
+    new JoystickButton(m_driverController, 4)
         .whileTrue(new RunCommand(
           () -> {m_robotDrive.setX();}
          ));
@@ -218,14 +224,18 @@ public class RobotContainer {
           () -> {m_LiftSubsystem.liftersReset();},
           () -> {}
          ));
-    new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value)
-        .onTrue(new InstantCommand(
-          () -> {m_vision.lockNote();}
-        ));
+    // new JoystickButton(m_driverController, 6)
+    //     .onTrue(new InstantCommand(
+    //       () -> {m_vision.lockNote();}
+    //     ));
     new JoystickButton(m_driverController, 7)
         .whileTrue(new RunCommand(
           () -> m_LiftSubsystem.liftersReset()
         ));
+    // button10
+    //     .whileTrue(new InstantCommand(
+    //       () -> {m_ShootingSubsystem.shootReverse();}
+    //     ));
     testButton5
         .whileTrue(new FunctionalCommand(
           () -> {m_ShootingSubsystem.timerInit();}, 
@@ -301,6 +311,7 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
 
     InstantCommand setGyroRight = new InstantCommand(() -> m_robotDrive.setHeading(60));
     InstantCommand setGyroLeft = new InstantCommand(() -> m_robotDrive.setHeading(-60));
+    InstantCommand setGyroRegular = new InstantCommand(() -> m_robotDrive.setHeading(0));
     // Run path following command, then stop at the end.
 
     String selectedAuto = autoSelector.getSelected();
@@ -309,12 +320,14 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         return setGyroLeft
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveControllerCommand1);
+          .andThen(swerveControllerCommand1)
+          .andThen(setGyroRegular);
       case "Amp on Right":
         return setGyroRight
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveControllerCommand1);
+          .andThen(swerveControllerCommand1)
+          .andThen(setGyroRegular);
     }
     return swerveControllerCommand1.andThen(shoot).andThen();
   }

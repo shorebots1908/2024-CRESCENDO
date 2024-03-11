@@ -15,11 +15,11 @@ import frc.robot.subsystems.ShootingSubsystem;
 public class CommandsContainer {
 
     private double driveSpeed = 0.40;
-    private boolean fieldRelative = true;
+    public boolean fieldRelative = true;
     public Command defaultDriveCommand(DriveSubsystem drive, Joystick controller) {
         return new RunCommand(
             () -> {
-                fieldRelative = controller.getRawAxis(5) > 0;
+                // fieldRelative = controller.getRawAxis(5) > 0;
                 driveSpeed = 0.7 + (0.3 * controller.getRawAxis(7));
                 drive.drive(
                 -driveSpeed *  modifyAxis(controller.getRawAxis(2)),

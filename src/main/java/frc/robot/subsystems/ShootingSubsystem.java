@@ -52,6 +52,10 @@ public class ShootingSubsystem extends SubsystemBase {
         m_shooter1.set(1);
         m_shooter2.set(1);
     }
+    public void shootReverse() {
+        m_shooter1.set(-1);
+        m_shooter2.set(-1);
+    }
     public void throttledShooting(double throttle) {
         m_shooter1.set(throttle);
         m_shooter2.set(throttle);
