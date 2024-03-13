@@ -17,13 +17,15 @@ public class LEDSubsystem extends SubsystemBase {
     private double blue = 0.87;
     private double teamColor;
     private String color = "";
-    // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-    public LEDSubsystem(){
-    // if (m_IntakeSubsystem.intakeSensor() == true) {
-    //         teamColor = yellow;
-    //         yellow();
-    //     }
-    // }
+    private IntakeSubsystem m_IntakeSubsystem;
+    public LEDSubsystem(NetworkTable FMS, IntakeSubsystem intakeSubsystem){
+        m_IntakeSubsystem = intakeSubsystem;
+        if (FMS.getEntry("isRedAlliance").getBoolean(false)) {
+            teamColor = red;
+        }
+        else {
+            teamColor = blue;
+        }
     }
 
     public void setLEDColor(double pwmColorCode) {
@@ -32,8 +34,16 @@ public class LEDSubsystem extends SubsystemBase {
     public void currentLEDColor() {
         ledStrip.get();
     }
+    
+    @Override
     public void periodic() {
         SmartDashboard.putString("Current LED Color", color);
+        if(!m_IntakeSubsystem.intakeSensor()){
+            teamColor();
+        }
+        else {
+            yellow();
+        }
     }
     public void yellow() {
         setLEDColor(yellow);

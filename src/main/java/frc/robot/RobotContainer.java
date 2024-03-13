@@ -109,7 +109,7 @@ public class RobotContainer {
     Trigger leftPot = new JoystickButton(m_driverJoystick, 5);
     Trigger rightPot = new JoystickButton(m_driverJoystick, 6);
     Trigger axisButton1 = new JoystickButton(m_driverJoystick, 7);
-    // NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
+    NetworkTable FMS = NetworkTableInstance.getDefault().getTable("FMSInfo");
     Trigger switch1 = new Trigger((() -> m_driverJoystick.getRawAxis(5) > 0.5));
     Trigger button10 = new Trigger((() -> m_driverJoystick.getRawAxis(6) > 0.5));
     Trigger testButton5 = new Trigger((() -> m_driverJoystick.getRawAxis(4) > 0.5));
@@ -119,7 +119,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_LedSubsystem = new LEDSubsystem();
+    m_LedSubsystem = new LEDSubsystem(FMS, m_IntakeSubsystem);
     
     // Configure the button bindings
     configureButtonBindings();
@@ -320,14 +320,14 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         return setGyroLeft
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveControllerCommand1)
-          .andThen(setGyroRegular);
+          .andThen(swerveControllerCommand1);
+          // .andThen(setGyroRegular);
       case "Amp on Right":
         return setGyroRight
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveControllerCommand1)
-          .andThen(setGyroRegular);
+          .andThen(swerveControllerCommand1);
+          // .andThen(setGyroRegular);
     }
     return swerveControllerCommand1.andThen(shoot).andThen();
   }
@@ -359,6 +359,14 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
     )
   );
 
+
+
+
+
+
+
+
+  
 
 
 public void periodic () {
