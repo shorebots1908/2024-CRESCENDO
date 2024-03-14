@@ -63,6 +63,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import com.choreo.lib.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -302,9 +303,9 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
       ),
         config);
 
-    var thetaController = new ProfiledPIDController(
-        AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    // var thetaController = new ProfiledPIDController(
+    //     AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
+    // thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     
     Command swerveCommand = Choreo.choreoSwerveCommand(
@@ -314,14 +315,17 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         // Position controllers
         new PIDController(AutoConstants.kPXController, 0, 0),
         new PIDController(AutoConstants.kPYController, 0, 0),
-        thetaController,
+        new PIDController(AutoConstants.kPThetaController, 0, 0),
         (ChassisSpeeds speeds) -> m_robotDrive.drive(
           speeds.vxMetersPerSecond, 
           speeds.vyMetersPerSecond, 
           speeds.omegaRadiansPerSecond, 
           false,
           true),
-        true,
+        () -> {
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+          return (alliance.isPresent() && alliance.get() == Alliance.Red);
+        },
         m_robotDrive);
 
     // Reset odometry to the starting pose of the trajectory.
