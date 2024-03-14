@@ -123,13 +123,13 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_LedSubsystem = new LEDSubsystem(FMS, m_IntakeSubsystem);
-    traj = Choreo.getTrajectory("Trajectory");
-    m_field.getObject("traj").setPoses(
-      traj.getInitialPose(), traj.getFinalPose()
-    );
-    m_field.getObject("trajPoses").setPoses(
-      traj.getPoses()
-    );
+    // traj = Choreo.getTrajectory("trajectory");
+    // m_field.getObject("traj").setPoses(
+    //   traj.getInitialPose(), traj.getFinalPose()
+    // );
+    // m_field.getObject("trajPoses").setPoses(
+    //   traj.getPoses()
+    // );
 
     SmartDashboard.putData(m_field);
 
@@ -137,8 +137,9 @@ public class RobotContainer {
     configureButtonBindings();
     
     //Autonomous options
-    autoSelector.setDefaultOption("Amp on Left", "Amp on Left");
-    autoSelector.setDefaultOption("Amp on Right", "Amp on Right");
+    autoSelector.setDefaultOption("trajectory1", "trajectory1");
+    autoSelector.addOption("Amp on Right", "Amp on Right");
+    autoSelector.addOption("TimTestTraj", "TimTestTraj");
 
     SmartDashboard.putData("Auto Mode", autoSelector);
 
@@ -338,18 +339,20 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
 
     String selectedAuto = autoSelector.getSelected();
     switch(selectedAuto){
-      case "Amp on Left":
+      case "trajectory1":
         return setGyroLeft
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveCommand);
+          .andThen(swerveCommand(selectedAuto));
           // .andThen(setGyroRegular);
       case "Amp on Right":
         return setGyroRight
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveCommand);
+          .andThen(swerveCommand(selectedAuto));
           // .andThen(setGyroRegular);
+      case "TimTestTraj":
+        return swerveCommand(selectedAuto);
     }
     return swerveCommand.andThen(shoot).andThen();
   }
@@ -359,6 +362,37 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
   //     action.execute();
   //   }
   // }
+  public Command swerveCommand(String pathName) {
+    traj = Choreo.getTrajectory(pathName);
+    m_field.getObject("traj").setPoses(
+      traj.getInitialPose(), traj.getFinalPose()
+    );
+    m_field.getObject("trajPoses").setPoses(
+      traj.getPoses()
+    );
+
+    Command swerveCommand = Choreo.choreoSwerveCommand(
+        traj,
+        m_robotDrive::getPose, // Functional interface to feed supplier
+
+        // Position controllers
+        new PIDController(AutoConstants.kPXController, 0, 0),
+        new PIDController(AutoConstants.kPYController, 0, 0),
+        new PIDController(AutoConstants.kPThetaController, 0, 0),
+        (ChassisSpeeds speeds) -> m_robotDrive.drive(
+          speeds.vxMetersPerSecond, 
+          speeds.vyMetersPerSecond, 
+          speeds.omegaRadiansPerSecond, 
+          false,
+          true),
+        () -> {
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+          return (alliance.isPresent() && alliance.get() == Alliance.Red);
+        },
+        m_robotDrive);
+
+        return swerveCommand;
+  }
 
   ParallelCommandGroup shoot = new FunctionalCommand(
     () -> {m_ShootingSubsystem.timerInit();},
