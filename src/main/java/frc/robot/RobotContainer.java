@@ -310,7 +310,7 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
     m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
 
     InstantCommand setGyroRight = new InstantCommand(() -> m_robotDrive.setHeading(60));
-    InstantCommand setGyroLeft = new InstantCommand(() -> m_robotDrive.setHeading(-60));
+    InstantCommand setGyroLeft = new InstantCommand(() -> m_robotDrive.setHeading(300));
     InstantCommand setGyroRegular = new InstantCommand(() -> m_robotDrive.setHeading(0));
     // Run path following command, then stop at the end.
 
