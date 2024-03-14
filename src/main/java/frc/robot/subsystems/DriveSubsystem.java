@@ -5,7 +5,9 @@
 package frc.robot.subsystems;
 
 import org.photonvision.EstimatedRobotPose;
-
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.utils.SwerveUtils;
@@ -104,7 +107,10 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       } );
       SmartDashboard.putString("Current Odometry Pose", m_odometry.getPoseMeters().toString());
-
+      SmartDashboard.putString("Front Left Position", m_frontLeft.getPosition().toString());
+      SmartDashboard.putString("Front Right Position", m_frontRight.getPosition().toString());
+      SmartDashboard.putString("Rear Left Position", m_rearLeft.getPosition().toString());
+      SmartDashboard.putString("Rear Right Position", m_rearRight.getPosition().toString());
   }
 
   /**
@@ -266,6 +272,8 @@ public class DriveSubsystem extends SubsystemBase {
   public double getHeading() {
     return Rotation2d.fromDegrees(m_gyro.getAngle(IMUAxis.kZ)).getDegrees();
   }
+   // Configure AutoBuilder last
+  
 
   /**
    * Returns the turn rate of the robot.

@@ -29,8 +29,8 @@ public class LiftSubsystem extends SubsystemBase {
     private double speed = -0.80;
     private double slowThreshold = 40;
     private double liftBottom = 4000;
-    private double liftTop = 3498;
-    
+    private double liftTop = 3428;
+    //3498; original liftTop
 
     public void control(double direction) {
         syncMotors(speed * direction, lifter1Encoder.getPosition(), lifter2Encoder.getPosition());

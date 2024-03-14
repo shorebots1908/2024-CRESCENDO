@@ -54,12 +54,13 @@ import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
+import com.choreo.lib.*;
 
 import java.util.List;
 
@@ -81,6 +82,7 @@ public class RobotContainer {
   private final CommandsContainer m_CommandsContainer = new CommandsContainer();
   private UsbCamera camera1;
   private UsbCamera camera2;
+  Field2d m_field = new Field2d();
   //command container class
   CommandsContainer commands = new CommandsContainer();
   // The driver's controller
@@ -88,7 +90,7 @@ public class RobotContainer {
   Joystick m_driverJoystick = new Joystick(1);
   Joystick m_assistJoystick = new Joystick(2);
   private final SendableChooser<String> autoSelector = new SendableChooser();
-
+  ChoreoTrajectory traj;
   // The controller buttons being declared, can be used for setting different buttons to certain commands and/or functions
   //XBOX CONTROLLER IDENTIFICATION
     Trigger yButton = new JoystickButton(m_driverController, XboxController.Button.kY.value);
@@ -120,7 +122,16 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_LedSubsystem = new LEDSubsystem(FMS, m_IntakeSubsystem);
-    
+    traj = Choreo.getTrajectory("Trajectory");
+    m_field.getObject("traj").setPoses(
+      traj.getInitialPose(), traj.getFinalPose()
+    );
+    m_field.getObject("trajPoses").setPoses(
+      traj.getPoses()
+    );
+
+    SmartDashboard.putData(m_field);
+
     // Configure the button bindings
     configureButtonBindings();
     
@@ -236,7 +247,8 @@ public class RobotContainer {
     //     .whileTrue(new InstantCommand(
     //       () -> {m_ShootingSubsystem.shootReverse();}
     //     ));
-    testButton5
+    //xbox controller b button slow shoot
+    new JoystickButton(m_driverController, 2)
         .whileTrue(new FunctionalCommand(
           () -> {m_ShootingSubsystem.timerInit();}, 
           () -> {
@@ -294,16 +306,22 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    SwerveControllerCommand swerveControllerCommand1 = new SwerveControllerCommand(
-        exampleTrajectory,
+    
+    Command swerveCommand = Choreo.choreoSwerveCommand(
+        traj,
         m_robotDrive::getPose, // Functional interface to feed supplier
-        DriveConstants.kDriveKinematics,
 
         // Position controllers
         new PIDController(AutoConstants.kPXController, 0, 0),
         new PIDController(AutoConstants.kPYController, 0, 0),
         thetaController,
-        m_robotDrive::setModuleStates,
+        (ChassisSpeeds speeds) -> m_robotDrive.drive(
+          speeds.vxMetersPerSecond, 
+          speeds.vyMetersPerSecond, 
+          speeds.omegaRadiansPerSecond, 
+          false,
+          true),
+        true,
         m_robotDrive);
 
     // Reset odometry to the starting pose of the trajectory.
@@ -320,16 +338,16 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         return setGyroLeft
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveControllerCommand1);
+          .andThen(swerveCommand);
           // .andThen(setGyroRegular);
       case "Amp on Right":
         return setGyroRight
           .andThen(shoot)
           .andThen(new WaitCommand(8))
-          .andThen(swerveControllerCommand1);
+          .andThen(swerveCommand);
           // .andThen(setGyroRegular);
     }
-    return swerveControllerCommand1.andThen(shoot).andThen();
+    return swerveCommand.andThen(shoot).andThen();
   }
 
   // public void axisBoolean(Joystick control, int axis, Command action) {
