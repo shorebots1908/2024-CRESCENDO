@@ -73,7 +73,7 @@ public class RobotContainer {
   
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final VisionSubsystem m_vision = new VisionSubsystem(m_robotDrive);
+  private final VisionSubsystem m_vision;
   private final LEDSubsystem m_LedSubsystem;
   private final LiftSubsystem m_LiftSubsystem = new LiftSubsystem();
   private final ShootingSubsystem m_ShootingSubsystem = new ShootingSubsystem();
@@ -120,7 +120,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_LedSubsystem = new LEDSubsystem(FMS, m_IntakeSubsystem);
-    
+    m_vision = new VisionSubsystem(m_robotDrive);
     // Configure the button bindings
     configureButtonBindings();
     
