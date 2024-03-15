@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants;
@@ -14,13 +15,13 @@ import frc.robot.subsystems.LiftSubsystem;
 import frc.robot.subsystems.ShootingSubsystem;
 public class CommandsContainer {
 
-    private double driveSpeed = 0.40;
+    private double driveSpeed = 0.50;
     public boolean fieldRelative = true;
-    public Command defaultDriveCommand(DriveSubsystem drive, Joystick controller) {
+    public Command defaultDriveCommand(DriveSubsystem drive, Joystick controller, XboxController controller2) {
         return new RunCommand(
             () -> {
                 fieldRelative = controller.getRawAxis(5) > 0;
-                driveSpeed = 0.7 + (0.3 * controller.getRawAxis(7));
+                driveSpeed = Math.max(0.75 + (0.25 * controller.getRawAxis(7)), (0.5 + (controller2.getRightTriggerAxis() * 0.5)));
                 drive.drive(
                 -driveSpeed *  modifyAxis(controller.getRawAxis(2)),
                 driveSpeed * modifyAxis(controller.getRawAxis(3)),

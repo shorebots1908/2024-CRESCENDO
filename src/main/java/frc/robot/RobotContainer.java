@@ -131,7 +131,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoSelector);
 
     // Configure default commands
-    m_robotDrive.setDefaultCommand(commands.defaultDriveCommand(m_robotDrive, m_driverJoystick));
+    m_robotDrive.setDefaultCommand(commands.defaultDriveCommand(m_robotDrive, m_driverJoystick, m_driverController));
       m_LiftSubsystem.setDefaultCommand(new RunCommand(
         () -> {
           if(m_driverController.getPOV() == 0) {
