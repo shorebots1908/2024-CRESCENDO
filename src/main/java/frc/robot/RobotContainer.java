@@ -178,16 +178,16 @@ public class RobotContainer {
               m_ShootingSubsystem.stop();
               m_ShootingSubsystem.timerStop();
             }, 
-            () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
+            () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
             m_ShootingSubsystem)
           .alongWith(
-            new WaitCommand(2)
+            new WaitCommand(.5)
             .andThen(
               new FunctionalCommand(
                 () -> {},
                 () -> m_IntakeSubsystem.noteFeed(), 
                 (x) -> m_IntakeSubsystem.noteFeedStop(), 
-                () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
+                () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
                 m_IntakeSubsystem)
             )
           )
