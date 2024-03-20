@@ -236,12 +236,12 @@ public class RobotContainer {
     //     .whileTrue(new InstantCommand(
     //       () -> {m_ShootingSubsystem.shootReverse();}
     //     ));
-    testButton5
+    new JoystickButton(m_driverController, 2)
         .whileTrue(new FunctionalCommand(
           () -> {m_ShootingSubsystem.timerInit();}, 
           () -> {
             m_IntakeSubsystem.throttledIntake(0.12);
-            m_ShootingSubsystem.throttledShooting(0.2);
+            m_ShootingSubsystem.throttledShooting(0.3);
           }, 
           (x) -> {
             m_IntakeSubsystem.intakeStop(); 
