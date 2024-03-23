@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,7 +32,7 @@ public final class Constants {
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
-
+//17 inches
     public static final double kDirectionSlewRate = 1.2; // radians per second
     public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
@@ -63,6 +66,22 @@ public final class Constants {
     public static final int kRearRightTurningCanId = 5;
 
     public static final boolean kGyroReversed = false;
+
+    public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
+      new PIDConstants(
+        kMaxAngularSpeed, 
+        kMagnitudeSlewRate, 
+        kDirectionSlewRate
+      ), 
+      new PIDConstants(
+        kMaxAngularSpeed, 
+        kMagnitudeSlewRate, 
+        kDirectionSlewRate
+      ), 
+      kMaxSpeedMetersPerSecond, 
+      (new Translation2d(kTrackWidth, kWheelBase)).getNorm(), 
+      new ReplanningConfig()
+    );
   }
 
   public static final class ModuleConstants {
@@ -139,4 +158,5 @@ public final class Constants {
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
   }
+  
 }

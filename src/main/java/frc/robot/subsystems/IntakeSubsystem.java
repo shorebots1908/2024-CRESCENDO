@@ -23,7 +23,7 @@ public class IntakeSubsystem extends SubsystemBase {
       private CANSparkMax m_intake1 = new CANSparkMax(9, MotorType.kBrushless);
       private CANSparkMax m_intake2 = new CANSparkMax(10, MotorType.kBrushless);
       private AnalogInput feedSensor;
-      
+      private Timer timer =  new Timer();
 
       //CONSTANTS
       private double intakeSpeed = 0.3;
@@ -69,6 +69,19 @@ public class IntakeSubsystem extends SubsystemBase {
     public void noteUntake(){
         m_intake1.set(intakeReverse);
         m_intake2.set(intakeReverse);
+    }
+    
+    public void timerInit(){
+        timer.reset();
+        timer.start();
+    }
+
+    public void timerStop(){
+        timer.stop();
+    }
+
+    public double getTime(){
+        return timer.get();
     }
     
 

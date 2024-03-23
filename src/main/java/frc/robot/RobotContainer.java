@@ -124,8 +124,8 @@ public class RobotContainer {
     m_LedSubsystem = new LEDSubsystem(FMS, m_IntakeSubsystem);
     m_vision = new VisionSubsystem(m_robotDrive);
 
-    NamedCommands.registerCommand("Shoot", new InstantCommand(() -> {m_ShootingSubsystem.shoot();}));
-    NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_IntakeSubsystem.noteIntake();}));
+    NamedCommands.registerCommand("Shoot", shoot());
+    NamedCommands.registerCommand("Intake", intake());
     NamedCommands.registerCommand("ToAmp", new InstantCommand(() -> {m_LiftSubsystem.liftToAmp();}));
     NamedCommands.registerCommand("ToNormalHeight", new InstantCommand(() -> {m_LiftSubsystem.liftToNormalHeight();}));
 
@@ -156,6 +156,38 @@ public class RobotContainer {
     // );
   }
 
+  private Command shoot() {
+    return new FunctionalCommand(
+    () -> {m_ShootingSubsystem.timerInit();},
+    () -> m_ShootingSubsystem.shoot(), 
+    (x) -> {
+      m_ShootingSubsystem.stop();
+      m_ShootingSubsystem.timerStop();
+    }, 
+    () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
+    m_ShootingSubsystem)
+  .alongWith(
+    new WaitCommand(.5)
+    .andThen(
+      new FunctionalCommand(
+        () -> {},
+        () -> m_IntakeSubsystem.noteFeed(), 
+        (x) -> m_IntakeSubsystem.noteFeedStop(), 
+        () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
+        m_IntakeSubsystem
+      )
+    )
+  );
+  }
+  private Command intake() {
+    return new FunctionalCommand(
+          () -> m_IntakeSubsystem.timerInit(),
+          () -> m_IntakeSubsystem.noteIntake(),
+          (x) -> {m_IntakeSubsystem.intakeStop(); m_IntakeSubsystem.timerStop();}, 
+          () -> { return m_IntakeSubsystem.intakeSensor() || m_IntakeSubsystem.getTime() > 4;},
+          m_IntakeSubsystem
+         );
+  }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be
@@ -179,28 +211,7 @@ public class RobotContainer {
 
     new JoystickButton(m_driverController, 0);
     new JoystickButton(m_driverJoystick, 2)
-        .onTrue(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         new ParallelCommandGroup(
-          new FunctionalCommand(
-            () -> {m_ShootingSubsystem.timerInit();},
-            () -> m_ShootingSubsystem.shoot(), 
-            (x) -> {
-              m_ShootingSubsystem.stop();
-              m_ShootingSubsystem.timerStop();
-            }, 
-            () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
-            m_ShootingSubsystem)
-          .alongWith(
-            new WaitCommand(.5)
-            .andThen(
-              new FunctionalCommand(
-                () -> {},
-                () -> m_IntakeSubsystem.noteFeed(), 
-                (x) -> m_IntakeSubsystem.noteFeedStop(), 
-                () -> {return (m_ShootingSubsystem.getTime() > 1.5);},
-                m_IntakeSubsystem)
-            )
-          )
-        ));
+      .onTrue(shoot());
     new JoystickButton(m_driverJoystick, 1)
         .whileTrue(new FunctionalCommand(
           () ->{},
@@ -305,6 +316,10 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
    */
   public Command getAutonomousCommand() {
     // Create config for trajectory
+    return new PathPlannerAuto("2NoteAutoMid");
+  }
+
+  public Command ignoredAutonomous() {
     TrajectoryConfig config = new TrajectoryConfig(
         AutoConstants.kMaxSpeedMetersPerSecond,
         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
@@ -344,18 +359,18 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
     switch(selectedAuto){
       case "Amp on Left":
         return setGyroLeft
-          .andThen(shoot)
+          .andThen(shoot())
           .andThen(new WaitCommand(8))
           .andThen(swerveControllerCommand1);
           // .andThen(setGyroRegular);
       case "Amp on Right":
         return setGyroRight
-          .andThen(shoot)
+          .andThen(shoot())
           .andThen(new WaitCommand(8))
           .andThen(swerveControllerCommand1);
           // .andThen(setGyroRegular);
     }
-    return swerveControllerCommand1.andThen(shoot).andThen();
+    return swerveControllerCommand1.andThen(shoot()).andThen();
   }
 
   // public void axisBoolean(Joystick control, int axis, Command action) {
@@ -363,27 +378,6 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
   //     action.execute();
   //   }
   // }
-
-  ParallelCommandGroup shoot = new FunctionalCommand(
-    () -> {m_ShootingSubsystem.timerInit();},
-    () -> m_ShootingSubsystem.shoot(), 
-    (x) -> {
-      m_ShootingSubsystem.stop();
-      m_ShootingSubsystem.timerStop();
-    }, 
-    () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
-    m_ShootingSubsystem)
-  .alongWith(
-    new WaitCommand(2)
-    .andThen(
-      new FunctionalCommand(
-        () -> {},
-        () -> m_IntakeSubsystem.noteFeed(), 
-        (x) -> m_IntakeSubsystem.noteFeedStop(), 
-        () -> {return (m_ShootingSubsystem.getTime() > 3.0);},
-        m_IntakeSubsystem)
-    )
-  );
 
 
 
