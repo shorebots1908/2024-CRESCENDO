@@ -316,6 +316,7 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
    */
   public Command getAutonomousCommand() {
     // Create config for trajectory
+    m_robotDrive.zeroHeading();
     return new PathPlannerAuto("2NoteAutoMid");
   }
 
