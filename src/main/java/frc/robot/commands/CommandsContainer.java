@@ -31,10 +31,10 @@ public class CommandsContainer {
         
     }
 
-    public Command defaultLiftCommand(LiftSubsystem lift, Joystick controller)  {
-        return new RunCommand(
-            () -> lift.control(controller.getRawAxis(6)));
-    }
+    // public Command defaultLiftCommand(LiftSubsystem lift, Joystick controller)  {
+    //     return new RunCommand(
+    //         () -> lift.control(controller.getRawAxis(6)));
+    // }
 
     public Command defaultAutonomousCommand(RobotContainer robot, DriveSubsystem drive, Constants constants) {
         return null;

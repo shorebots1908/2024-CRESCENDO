@@ -59,6 +59,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import com.pathplanner.lib.commands.*;
+import com.pathplanner.lib.auto.*;
 
 
 import java.util.List;
@@ -121,6 +123,12 @@ public class RobotContainer {
   public RobotContainer() {
     m_LedSubsystem = new LEDSubsystem(FMS, m_IntakeSubsystem);
     m_vision = new VisionSubsystem(m_robotDrive);
+
+    NamedCommands.registerCommand("Shoot", new InstantCommand(() -> {m_ShootingSubsystem.shoot();}));
+    NamedCommands.registerCommand("Intake", new InstantCommand(() -> {m_IntakeSubsystem.noteIntake();}));
+    NamedCommands.registerCommand("ToAmp", new InstantCommand(() -> {m_LiftSubsystem.liftToAmp();}));
+    NamedCommands.registerCommand("ToNormalHeight", new InstantCommand(() -> {m_LiftSubsystem.liftToNormalHeight();}));
+
     // Configure the button bindings
     configureButtonBindings();
     
@@ -132,19 +140,20 @@ public class RobotContainer {
 
     // Configure default commands
     m_robotDrive.setDefaultCommand(commands.defaultDriveCommand(m_robotDrive, m_driverJoystick, m_driverController));
-      m_LiftSubsystem.setDefaultCommand(new RunCommand(
-        () -> {
-          if(m_driverController.getPOV() == 0) {
-            m_LiftSubsystem.measuredControl(1);
-          }
-          else if(m_driverController.getPOV() == 180) {
-            m_LiftSubsystem.measuredControl(-1);
-          }
-          else {
-          m_LiftSubsystem.control(m_driverJoystick.getRawAxis(6));
-          }
-        },
-        m_LiftSubsystem));
+    // m_LiftSubsystem.setDefaultCommand(new RunCommand(
+    //   () -> {
+    //     if(m_driverController.getPOV() == 0) {
+    //       m_LiftSubsystem.measuredControl(1);
+    //     }
+    //     else if(m_driverController.getPOV() == 180) {
+    //       m_LiftSubsystem.measuredControl(-1);
+    //     }
+    //     else {
+    //     m_LiftSubsystem.control(m_driverJoystick.getRawAxis(6));
+    //     }
+    //   },
+    //   m_LiftSubsystem)
+    // );
   }
 
 
@@ -219,19 +228,36 @@ public class RobotContainer {
         .whileTrue(new RunCommand(
           () -> {m_robotDrive.setX();}
          ));
-    new JoystickButton(m_assistJoystick, 2)
-        .whileTrue(new StartEndCommand(
-          () -> {m_LiftSubsystem.liftersReset();},
-          () -> {}
-         ));
-    // new JoystickButton(m_driverController, 6)
-    //     .onTrue(new InstantCommand(
-    //       () -> {m_vision.lockNote();}
+    // new JoystickButton(m_assistJoystick, 2)
+    //     .whileTrue(new StartEndCommand(
+    //       () -> {m_LiftSubsystem.liftersReset();},
+    //       () -> {}
+    //      ));
+    new JoystickButton(m_driverController, 5)
+        .onTrue(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       new ParallelCommandGroup(
+          new FunctionalCommand(
+            () -> {m_LiftSubsystem.timerInit();},
+            () -> m_LiftSubsystem.liftToAmp(), 
+            (x) -> {}, 
+            () -> {return (m_LiftSubsystem.getTime() > 2);},
+            m_LiftSubsystem)
+            .andThen(
+              new FunctionalCommand(
+                () -> {},
+                () -> {m_ShootingSubsystem.throttledShooting(0.3);}, 
+                (x) -> {{m_LiftSubsystem.liftToNormalHeight();
+                        m_LiftSubsystem.timerStop();
+                        m_ShootingSubsystem.stop();}
+              }, 
+                () -> {return (m_LiftSubsystem.getTime() > 4.5);},
+                m_LiftSubsystem, m_ShootingSubsystem)
+            )
+          )
+        );
+    // new JoystickButton(m_driverController, 7)
+    //     .whileTrue(new RunCommand(
+    //       () -> m_LiftSubsystem.liftersReset()
     //     ));
-    new JoystickButton(m_driverController, 7)
-        .whileTrue(new RunCommand(
-          () -> m_LiftSubsystem.liftersReset()
-        ));
     // button10
     //     .whileTrue(new InstantCommand(
     //       () -> {m_ShootingSubsystem.shootReverse();}
@@ -284,7 +310,7 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(DriveConstants.kDriveKinematics);
-
+    
     // An example trajectory to follow. All units in meters.
     Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(List.of(new Pose2d(0, 0, new Rotation2d(0)),new Pose2d(2.7, 0, new Rotation2d(0))
       ),
