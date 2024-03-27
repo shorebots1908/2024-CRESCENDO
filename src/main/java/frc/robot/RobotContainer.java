@@ -319,7 +319,7 @@ public void checkFieldColor() {
   public Command getAutonomousCommand() {
     // Create config for trajectory
     m_robotDrive.zeroHeading();
-    m_robotDrive.resetOdometry(PathPlannerPath.fromPathFile("Copy of 2NoteMid").getPreviewStartingHolonomicPose());
+    //m_robotDrive.resetOdometry(PathPlannerPath.fromPathFile("Copy of 2NoteMid").getPreviewStartingHolonomicPose());
     return new PathPlannerAuto("2NoteAutoMid");
   }
 
