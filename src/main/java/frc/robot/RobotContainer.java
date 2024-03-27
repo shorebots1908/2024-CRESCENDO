@@ -60,6 +60,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import com.pathplanner.lib.commands.*;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.auto.*;
 
 
@@ -303,12 +304,13 @@ public class RobotContainer {
 
   
 public void checkFieldColor() {
-  // The origin is always blue. When our alliance is red, X and Y need to be inverted
-var alliance = DriverStation.getAlliance();
-var invert = 1;
-if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+    // The origin is always blue. When our alliance is red, X and Y need to be inverted
+  var alliance = DriverStation.getAlliance();
+  var invert = 1;
+  if (alliance.isPresent() && alliance.get() == Alliance.Red) {
     invert = -1;
-}}
+  }
+}
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -317,6 +319,7 @@ if (alliance.isPresent() && alliance.get() == Alliance.Red) {
   public Command getAutonomousCommand() {
     // Create config for trajectory
     m_robotDrive.zeroHeading();
+    m_robotDrive.resetOdometry(PathPlannerPath.fromPathFile("Copy of 2NoteMid").getPreviewStartingHolonomicPose());
     return new PathPlannerAuto("2NoteAutoMid");
   }
 
